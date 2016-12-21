@@ -181,7 +181,7 @@ namespace WernherChecker
             double quantity = 0;
             foreach (Part part in partsToCheck.Where(p => p.Resources.Contains(crton.resourceName)))
             {
-                quantity += part.Resources.list.Find(r => r.resourceName == crton.resourceName).amount;
+                quantity += part.Resources.Get(crton.resourceName).amount;
             }
             if (quantity >= int.Parse(crton.parameter.ToString()))
                 return true;
@@ -194,7 +194,7 @@ namespace WernherChecker
             double quantity = 0;
             foreach (Part part in partsToCheck.Where(p => p.Resources.Contains(crton.resourceName)))
             {
-                quantity += part.Resources.list.Find(r => r.resourceName == crton.resourceName).maxAmount;
+                quantity += part.Resources.Get(crton.resourceName).maxAmount;
             }
             if (quantity >= int.Parse(crton.parameter.ToString()))
                 return true;
@@ -206,7 +206,7 @@ namespace WernherChecker
         {
             try
             {
-                foreach (PartCrewManifest part in CMAssignmentDialog.Instance.GetManifest().GetCrewableParts().Where(p => partsToCheck.Exists(pt => pt.partInfo == p.PartInfo)))
+                foreach (PartCrewManifest part in KSP.UI.CrewAssignmentDialog.Instance.GetManifest().GetCrewableParts().Where(p => partsToCheck.Exists(pt => pt.partInfo == p.PartInfo)))
                 {               
                     if (part.GetPartCrew().Where(c => c != null).Any(c => c.experienceTrait.Title == crton.experienceTrait && c.experienceLevel >= int.Parse(crton.parameter.ToString())))
                     {

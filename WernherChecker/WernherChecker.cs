@@ -39,6 +39,7 @@ namespace WernherChecker
         public string lastTooltip;
 
         //Other
+        string Version = "";
         UnityAction launchDelegate = new UnityAction(CrewCheck.OnButtonInput);
         UnityAction defaultLaunchDelegate = new UnityAction(EditorLogic.fetch.launchVessel);
         bool KCTInstalled = false;
@@ -86,7 +87,9 @@ namespace WernherChecker
 
         public void Start()
         {
-            Debug.LogWarning("WernherChecker v0.4.1 is loading...");
+            Debug.LogWarning("WernherChecker is loading...");
+            Version = this.GetType().Assembly.GetName().Version.ToString();
+            Debug.LogWarning(string.Format("WernherChecker Version is {0}", Version));
             Instance = this;
             if (Settings.Load())
             {
@@ -219,7 +222,7 @@ namespace WernherChecker
             mousePos = Input.mousePosition;
             mousePos.y = Screen.height - mousePos.y;
             if (!minimized)
-                mainWindow = GUILayout.Window(1, mainWindow, OnWindow, "WernherChecker v0.4.1"/*." + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.Revision + "dev"*/, windowStyle);
+                mainWindow = GUILayout.Window(1, mainWindow, OnWindow, string.Format("WernherChecker v{0}", Version), windowStyle);
             if (showSettings && !minimized)
                 settingsWindow = GUILayout.Window(2, settingsWindow, OnSettingsWindow, "WernherChecker - Settings", windowStyle);
             if (checklistSelected && checklistSystem.ActiveChecklist.items.Exists(i => i.paramsDisplayed) && !minimized)
