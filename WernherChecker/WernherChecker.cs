@@ -47,9 +47,9 @@ namespace WernherChecker
         bool settings_BlizzyToolbar = false;
         bool settings_CheckCrew = true;
         bool settings_LockWindow = true;
-        public static string DataPath = KSPUtil.ApplicationRootPath + "GameData/WernherChecker/Data/";
-        public static Texture2D settingsTexture = GameDatabase.Instance.GetTexture("WernherChecker/Data/settings", false);
-        public static Texture2D tooltipBGTexture = GameDatabase.Instance.GetTexture("WernherChecker/Data/tooltip_BG", false);
+        public static string DataPath = KSPUtil.ApplicationRootPath + "GameData/WernherChecker/PluginData/";
+        public static Texture2D settingsTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/settings", false);
+        public static Texture2D tooltipBGTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/tooltip_BG", false);
         IButton wcbutton;
         ApplicationLauncherButton appButton;
         public Vector2 mousePos = Input.mousePosition;
@@ -87,9 +87,9 @@ namespace WernherChecker
 
         public void Start()
         {
-            Debug.LogWarning("WernherChecker is loading...");
+            Log.Warning("WernherChecker is loading...");
             Version = this.GetType().Assembly.GetName().Version.ToString();
-            Debug.LogWarning(string.Format("WernherChecker Version is {0}", Version));
+            Log.Warning(string.Format("WernherChecker Version is {0}", Version));
             Instance = this;
             if (Settings.Load())
             {
@@ -152,7 +152,7 @@ namespace WernherChecker
                     {
                         activeToolbar = toolbarType.BLIZZY;
                         wcbutton = ToolbarManager.Instance.add("WernherChecker", "wcbutton"); //creating toolbar button
-                        wcbutton.TexturePath = "WernherChecker/Data/icon_24";
+                        wcbutton.TexturePath = "WernherChecker/Images/icon_24";
                         wcbutton.ToolTip = "WernherChecker";
                         wcbutton.OnClick += (e) =>
                         {
@@ -179,7 +179,7 @@ namespace WernherChecker
         
         void CreateAppButton()
         {
-            appButton = ApplicationLauncher.Instance.AddModApplication(MiniOff, MiniOn, null, null, null, null, ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Data/icon",false));
+            appButton = ApplicationLauncher.Instance.AddModApplication(MiniOff, MiniOn, null, null, null, null, ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/icon", false));
             if (!minimized)
                 appButton.SetTrue(true);
         }
@@ -263,7 +263,7 @@ namespace WernherChecker
             if (tooltipText == "" || hoverTime < 0.5f)
                 return;           
             
-            //Debug.Log(tooltipText);           
+            //Log.Info(tooltipText);           
             GUIContent tooltip = new GUIContent(tooltipText);
             Rect tooltipPosition = new Rect(mousePos.x + 15, mousePos.y + 15, 0, 0);
             float maxw, minw;
@@ -479,7 +479,7 @@ namespace WernherChecker
                                     {
                                         /*float max, min;
                                         GUI.skin.label.CalcMinMaxWidth(new GUIContent("Thisisthecontentasdsdfsdfsd"), out min, out max);
-                                        Debug.Log("Min: " + min + ", Max: " + max);*/
+                                        Log.Info("Min: " + min + ", Max: " + max);*/
                                         foreach (Part part in WernherChecker.VesselParts)
                                         {
                                             part.SetHighlightDefault();

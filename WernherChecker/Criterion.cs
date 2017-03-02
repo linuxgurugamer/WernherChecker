@@ -45,6 +45,29 @@ namespace WernherChecker
         public List<string> modules;
         public string experienceTrait;
 
+        public string reqModName;
+        public bool valid;
+
+        public static List<String> installedMods = new List<String>();
+        public void buildModList()
+        {
+            Log.Info("buildModList");
+            //https://github.com/Xaiier/Kreeper/blob/master/Kreeper/Kreeper.cs#L92-L94 <- Thanks Xaiier!
+            foreach (AssemblyLoader.LoadedAssembly a in AssemblyLoader.loadedAssemblies)
+            {
+                string name = a.name;
+                Log.Info(string.Format("Loading assembly: {0}", name));
+                installedMods.Add(name);
+            }
+        }
+        public bool hasMod(string modIdent)
+        {
+            if (installedMods.Count == 0)
+                buildModList();
+            return installedMods.Contains(modIdent);
+        }
+
+
         public Criterion(ConfigNode node)
         {
             this.type = (CriterionType)Enum.Parse(typeof(CriterionType), node.GetValue("type"));
@@ -66,6 +89,21 @@ namespace WernherChecker
                     this.tempParam = this.parameter;
                 }
             }
+            if (node.HasValue("requiredMod"))
+            {
+                Log.Info("requiredMod");
+                reqModName = node.GetValue("requiredMod");
+                Log.Info("requiredMod: " + reqModName);
+                if (!hasMod(reqModName))
+                {
+                    valid = false;
+                    return;
+                }
+
+            }
+            else
+                reqModName = null;
+            valid = true;
 
             switch (this.type)
             {

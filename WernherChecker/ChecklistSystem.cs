@@ -45,7 +45,7 @@ namespace WernherChecker
                     availableChecklists.Clear();
                     foreach (ConfigNode checklistNode in WernherChecker.Instance.Settings.cfg.GetNodes("CHECKLIST"))
                     {
-                        Debug.Log("[WernherChecker]: Parsing checklist - " + checklistNode.GetValue("name"));
+                        Log.Info("[WernherChecker]: Parsing checklist - " + checklistNode.GetValue("name"));
                         Checklist parsedChecklist = new Checklist();
                         parsedChecklist.items = new List<ChecklistItem>();
                         parsedChecklist.name = checklistNode.GetValue("name");
@@ -53,7 +53,7 @@ namespace WernherChecker
                         ///Begining item cycle
                         foreach (ConfigNode itemNode in checklistNode.GetNodes("CHECKLIST_ITEM"))
                         {
-                            //Debug.Log("parsing item " + itemNode.GetValue("name"));
+                            //Log.Info("parsing item " + itemNode.GetValue("name"));
                             ChecklistItem parsedItem = new ChecklistItem();
                             parsedItem.criteria = new List<Criterion>();
                             parsedItem.name = itemNode.GetValue("name");
@@ -65,10 +65,10 @@ namespace WernherChecker
                             //Begining criterion cycle
                             foreach (ConfigNode criterionNode in itemNode.GetNodes("CRITERION"))
                             {
-                                //Debug.Log("parsing criterion of type " + criterionNode.GetValue("type"));
+                                //Log.Info("parsing criterion of type " + criterionNode.GetValue("type"));
                                 Criterion parsedCriterion = new Criterion(criterionNode);
-                                
-                                parsedItem.criteria.Add(parsedCriterion);
+                                if (parsedCriterion.valid)
+                                    parsedItem.criteria.Add(parsedCriterion);
                             }
                             parsedChecklist.items.Add(parsedItem);
                         }
@@ -80,7 +80,7 @@ namespace WernherChecker
 
             catch
             {
-                Debug.LogWarning("[WernherChecker]: Error loading checklist. Please, check your cfg file.");
+                Log.Warning("[WernherChecker]: Error loading checklist. Please, check your cfg file.");
                 return false;
             }
         }
@@ -210,16 +210,16 @@ namespace WernherChecker
                 {               
                     if (part.GetPartCrew().Where(c => c != null).Any(c => c.experienceTrait.Title == crton.experienceTrait && c.experienceLevel >= int.Parse(crton.parameter.ToString())))
                     {
-                        //Debug.Log("Crew OK");
+                        //Log.Info("Crew OK");
                         return true;
                     }
                 }
-                //Debug.Log("Crew KO");
+                //Log.Info("Crew KO");
                 return false;
             }
             catch(Exception ex)
             {
-                Debug.LogWarning("[WernherChecker]: Error checking crew:\n" + ex + "\n\n<b><color=lime>Please note, that this can sometimes happen after entering the editor and attaching the part for the first time.</color> <color=#ff4444ff>If this is not the case, please, report it.</color></b>");
+                Log.Warning("[WernherChecker]: Error checking crew:\n" + ex + "\n\n<b><color=lime>Please note, that this can sometimes happen after entering the editor and attaching the part for the first time.</color> <color=#ff4444ff>If this is not the case, please, report it.</color></b>");
                 return false;
             }
         }
@@ -280,7 +280,7 @@ namespace WernherChecker
             {
                 //GUILayout.BeginArea(paramInspector, "Select Parameter", HighLogic.Skin.window);
                 foreach (Contracts.Contract contract in Contracts.ContractSystem.Instance.GetCurrentActiveContracts<Contracts.Contract>().Where(c => c.AllParameters.Any(p => p.GetType() == typeof(Contracts.Parameters.PartTest) || p.GetType() == typeof(FinePrint.Contracts.Parameters.CrewCapacityParameter) || p.GetType() == typeof(FinePrint.Contracts.Parameters.PartRequestParameter))))
-                    Debug.Log(contract.Title);
+                    Log.Info(contract.Title);
             }
             return crton.tempParam;
         }*/

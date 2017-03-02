@@ -51,7 +51,7 @@ namespace WernherChecker
                     selection.height = Math.Abs(selection.height);
                 }
 
-                GUI.DrawTexture(selection, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Data/selection", false));
+                GUI.DrawTexture(selection, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/selection", false));
                 foreach (Part part in WernherChecker.VesselParts)
                 {
                     Vector3 origScreenPoint = EditorCamera.Instance.cam.WorldToScreenPoint(part.partTransform.position);

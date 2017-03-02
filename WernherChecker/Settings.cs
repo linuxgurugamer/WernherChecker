@@ -32,60 +32,60 @@ namespace WernherChecker
 
         public bool Load()
         {
-            Debug.Log("[WernherChecker]: ========= Loading Settings =========");
+            Log.Info("[WernherChecker]: ========= Loading Settings =========");
             if (CfgExists())
             {
                 cfg = ConfigNode.Load(WernherChecker.DataPath + "WernherChecker.cfg");
-                Debug.Log("[WernherChecker]: Config file found at " + WernherChecker.DataPath + "WernherChecker.cfg");
+                Log.Info("[WernherChecker]: Config file found at " + WernherChecker.DataPath + "WernherChecker.cfg");
                 //------------------------------------------------------------------------------
                 try
                 {
                     this.lockOnHover = bool.Parse(cfg.GetValue("lockOnHover"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Lock editor while hovering over the main window: " + this.lockOnHover);
+                    Log.Info("[WernherChecker]: SETTINGS - Lock editor while hovering over the main window: " + this.lockOnHover);
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - lockOnHover field has an invalid value assigned (" + cfg.GetValue("lockOnHover") + "). Please assign valid boolean value."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - lockOnHover field has an invalid value assigned (" + cfg.GetValue("lockOnHover") + "). Please assign valid boolean value."); }
                 //----------------------------------------------------------------------------
                 try
                 {
                     this.checkCrewAssignment = bool.Parse(cfg.GetValue("checkCrewAssignment"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Check crew assignment before launch: " + this.checkCrewAssignment);
+                    Log.Info("[WernherChecker]: SETTINGS - Check crew assignment before launch: " + this.checkCrewAssignment);
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - checkCrewAssignment field has an invalid value assigned (" + cfg.GetValue("checkCrewAssignment") + "). Please assign valid boolean value."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - checkCrewAssignment field has an invalid value assigned (" + cfg.GetValue("checkCrewAssignment") + "). Please assign valid boolean value."); }
                 //-----------------------------------------------------------------------------
                 try
                 {
                     this.jebEnabled = bool.Parse(cfg.GetValue("jebEnabled"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Jeb's advice enabled: " + this.jebEnabled);
+                    Log.Info("[WernherChecker]: SETTINGS - Jeb's advice enabled: " + this.jebEnabled);
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - jebEnabled field has an invalid value assigned (" + cfg.GetValue("jebEnabled") + "). Please assign valid boolean value."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - jebEnabled field has an invalid value assigned (" + cfg.GetValue("jebEnabled") + "). Please assign valid boolean value."); }
                 //--------------------------------------------------------------------------
                 try
                 {
                     this.wantedToolbar = (WernherChecker.toolbarType)Enum.Parse(typeof(WernherChecker.toolbarType), cfg.GetValue("toolbarType"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Active toolbar: " + this.wantedToolbar.ToString());
+                    Log.Info("[WernherChecker]: SETTINGS - Active toolbar: " + this.wantedToolbar.ToString());
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - toolbarType field has an invalid value assigned (" + cfg.GetValue("toolbarType") + "). Please assign valid value (BLIZZY / STOCK)."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - toolbarType field has an invalid value assigned (" + cfg.GetValue("toolbarType") + "). Please assign valid value (BLIZZY / STOCK)."); }
                 //--------------------------------------------------------------------------
                 try
                 {
                     this.minimized = bool.Parse(cfg.GetValue("minimized"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Minimized: " + this.minimized.ToString());
+                    Log.Info("[WernherChecker]: SETTINGS - Minimized: " + this.minimized.ToString());
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - minimized field has an invalid value assigned (" + cfg.GetValue("minimized") + "). Please assign valid boolean value."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - minimized field has an invalid value assigned (" + cfg.GetValue("minimized") + "). Please assign valid boolean value."); }
                 //--------------------------------------------------------------------------
                 try
                 {
                     this.windowX = float.Parse(cfg.GetValue("windowX"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Window X: " + this.windowX.ToString());
+                    Log.Info("[WernherChecker]: SETTINGS - Window X: " + this.windowX.ToString());
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - windowX field value is unsupported or null."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - windowX field value is unsupported or null."); }
                 //--------------------------------------------------------------------------
                 try
                 {
                     this.windowY = float.Parse(cfg.GetValue("windowY"));
-                    Debug.Log("[WernherChecker]: SETTINGS - Window Y: " + this.windowY.ToString());
+                    Log.Info("[WernherChecker]: SETTINGS - Window Y: " + this.windowY.ToString());
                 }
-                catch { Debug.LogWarning("[WernherChecker]: SETTINGS - windowY field value is unsupported or null."); }
+                catch { Log.Warning("[WernherChecker]: SETTINGS - windowY field value is unsupported or null."); }
 
                 cfgLoaded = true;
                 return true;
@@ -93,14 +93,14 @@ namespace WernherChecker
 
             else
             {
-                Debug.LogWarning("[WernherChecker]: Missing config file!");
+                Log.Warning("[WernherChecker]: Missing config file!");
                 return false;
             }
         }
 
         public void Save()
         {
-            Debug.Log("[WernherChecker]: ========= Saving Settings =========");
+            Log.Info("[WernherChecker]: ========= Saving Settings =========");
             if (CfgExists() && cfgLoaded)
             {
                 if (cfg.HasValue("lockOnHover"))
@@ -137,7 +137,7 @@ namespace WernherChecker
             }
 
             else
-                Debug.LogWarning("[WernherChecker]: Missing config file!");
+                Log.Warning("[WernherChecker]: Missing config file!");
         }
 
         public bool CfgExists()
