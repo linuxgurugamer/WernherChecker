@@ -68,6 +68,9 @@
     <Reference Include="Assembly-CSharp-firstpass">
       <HintPath>R:\KSP_1.2.2_dev\KSP_x64_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
+    <Reference Include="KIS">
+      <HintPath>R:\KSP_1.2.2_dev\GameData\KIS\Plugins\KIS.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <HintPath>R:\KSP_1.2.2_dev\KSP_x64_Data\Managed\System.dll</HintPath>
     </Reference>

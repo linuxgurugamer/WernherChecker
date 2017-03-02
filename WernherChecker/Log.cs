@@ -20,7 +20,7 @@ namespace WernherChecker
 
         public static LEVEL level = LEVEL.INFO;
 
-        private static readonly String PREFIX = "FMRS" + ": ";
+        private static readonly String PREFIX = "WernerChecker" + ": ";
 
         public static LEVEL GetLevel()
         {

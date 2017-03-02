@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using KIS;
 
 namespace WernherChecker
 {
@@ -150,8 +151,33 @@ namespace WernherChecker
             }
         }
 
+        bool CheckForKISModules(Criterion crton)
+        {
+            int quantity = 0;
+            foreach (string module in crton.modules)
+            {
+                foreach (var p in partsToCheck.Where(p => p.Modules.Contains("ModuleKISInventory")))
+                {
+                    var inv = p.FindModuleImplementing<ModuleKISInventory>();
+                    
+                    foreach (var i in inv.items)
+                    {
+                        if (i.Value.equippedPart.Modules.Contains(module))
+                            quantity++;
+                    }
+
+                }
+            }
+            if (quantity >= int.Parse(crton.parameter.ToString()))
+                return true;
+
+            return false;
+        }
+
         bool CheckForModules(Criterion crton)
         {
+            if (crton.reqModName == "KIS")
+                return CheckForKISModules(crton);
             int quantity = 0;
             foreach (string module in crton.modules)
             {

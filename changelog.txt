@@ -9,6 +9,8 @@
 	Currently this won't work for KIS and the ModuleKISItemAttachTool, since a tool in the inventory is not actually part of the vessel
 	Added Log.cs to make logging easier
 
+0.5.2
+	Got the checks for the KIS tools working
 
 ------------- Version v0.5 (Dec 21) -------------
 * KSP 1.2.2 support
