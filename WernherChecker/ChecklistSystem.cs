@@ -58,6 +58,14 @@ namespace WernherChecker
                             ChecklistItem parsedItem = new ChecklistItem();
                             parsedItem.criteria = new List<Criterion>();
                             parsedItem.name = itemNode.GetValue("name");
+                            if (itemNode.HasValue("scene"))
+                            {
+                                Log.Info("scene found");
+                                var scene = itemNode.GetValue("scene");
+                                Log.Info("scene: " + scene);
+                                if (scene == "editor")
+                                    parsedItem.editorOnly = true;
+                            }
                             if (!bool.TryParse(itemNode.GetValue("isManual"), out parsedItem.isManual))
                                 parsedItem.isManual = false;
                             if(!bool.TryParse(itemNode.GetValue("allRequired"), out parsedItem.allRequired))
@@ -69,9 +77,12 @@ namespace WernherChecker
                                 //Log.Info("parsing criterion of type " + criterionNode.GetValue("type"));
                                 Criterion parsedCriterion = new Criterion(criterionNode);
                                 if (parsedCriterion.valid)
+                                {
                                     parsedItem.criteria.Add(parsedCriterion);
+                                }
                             }
-                            parsedChecklist.items.Add(parsedItem);
+                            if (parsedItem.criteria.Count() > 0 || parsedItem.isManual)
+                                parsedChecklist.items.Add(parsedItem);
                         }
                         availableChecklists.Add(parsedChecklist);
                     }

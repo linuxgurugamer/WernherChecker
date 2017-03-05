@@ -91,9 +91,12 @@ namespace WernherChecker
             }
             if (node.HasValue("requiredMod"))
             {
+                Log.Info("requiredMod found");
                 reqModName = node.GetValue("requiredMod");
+                Log.Info("reqModName: " + reqModName);
                 if (!hasMod(reqModName))
                 {
+                    Log.Info("required mod not found");
                     valid = false;
                     return;
                 }

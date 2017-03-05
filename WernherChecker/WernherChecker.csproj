@@ -46,6 +46,7 @@
     <Compile Include="ChecklistSystem.cs" />
     <Compile Include="CrewCheck.cs" />
     <Compile Include="Criterion.cs" />
+    <Compile Include="KSPSettings.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="PartSelection.cs" />
     <Compile Include="Settings.cs" />

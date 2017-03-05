@@ -8,9 +8,15 @@
 		requiredMod = (modname)
 	Currently this won't work for KIS and the ModuleKISItemAttachTool, since a tool in the inventory is not actually part of the vessel
 	Added Log.cs to make logging easier
+	Fixed bug where KIS showing green when checking selected part of ship (when no tools were there) has been fixed.
 
 0.5.2
 	Got the checks for the KIS tools working
+
+0.5.3
+	Fixed issue where KIS wa showing up all the time, even when KIS wasn't installed
+	Added scrolling window when greater than 12 items in list
+	Added basic settings page to control whether list is shown when entering editor
 
 ------------- Version v0.5 (Dec 21) -------------
 * KSP 1.2.2 support

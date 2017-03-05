@@ -10,15 +10,16 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using KSP.UI.Screens;
-using UnityEngine.Events;
+using UnityEngine.Events; 
 
 namespace WernherChecker
 {
+    
     [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     public class WernherChecker : MonoBehaviour
     {
         //Window variables
-        public static float panelWidth = EditorPanels.Instance.partsEditor.panelTransform.rect.xMax;
+        public static float panelWidth  = EditorPanels.Instance.partsEditor.panelTransform.rect.xMax;
         public Rect mainWindow = new Rect(panelWidth + 3, 120, 0, 0);
         Rect settingsWindow = new Rect();
         bool showAdvanced = false;
@@ -179,9 +180,10 @@ namespace WernherChecker
         
         void CreateAppButton()
         {
-            appButton = ApplicationLauncher.Instance.AddModApplication(MiniOff, MiniOn, null, null, null, null, ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/icon", false));
+            appButton = ApplicationLauncher.Instance.AddModApplication(MiniOff, MiniOn, null, null, null, null, ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.FLIGHT, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/icon", false));
             if (!minimized)
                 appButton.SetTrue(true);
+            minimized = !HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().alwaysOpen;
         }
 
         void DestroyAppButton(GameScenes gameScenes)
@@ -365,8 +367,12 @@ namespace WernherChecker
             SetTooltipText();
         }
 
+        Vector2 scrollPos;
+        const int SCROLL_GREATER  =  12;
+
         void OnWindow(int windowID)
         {
+           
             GUILayout.BeginVertical( GUILayout.Width(225));
 
             if (Settings.cfgLoaded) //If the cfg file exists
@@ -375,6 +381,8 @@ namespace WernherChecker
                 {
                     if (!selectionInProgress) //If the mode, where the checked parts are set, is active
                     {
+                        if (checklistSystem.ActiveChecklist.items.Count > SCROLL_GREATER)
+                            scrollPos = GUILayout.BeginScrollView(scrollPos, false, false, GUILayout.Height(500)); //  , GUILayout.Width((panelWidth + 3)));
                         GUILayout.BeginHorizontal();
                         GUILayout.Label("Current checklist:");
                         GUILayout.FlexibleSpace();
@@ -397,6 +405,8 @@ namespace WernherChecker
                             GUILayout.EndHorizontal();
                         }
                         GUILayout.EndVertical();
+                        if (checklistSystem.ActiveChecklist.items.Count > SCROLL_GREATER)
+                            GUILayout.EndScrollView();
 
                         if (GUILayout.Button("Change checklist", buttonStyle, GUILayout.Height(24f)))
                         {
