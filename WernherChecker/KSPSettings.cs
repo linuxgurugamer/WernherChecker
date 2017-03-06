@@ -23,11 +23,22 @@ namespace WernherChecker
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return false; } }
 
-
         [GameParameters.CustomParameterUI("Always open when entering editor")]
-        public bool alwaysOpen = true;
+        public bool alwaysOpeninEditor = true;
 
-   
+        [GameParameters.CustomParameterUI("Always open when entering flight")]
+        public bool alwaysOpenInFlight = false;
+
+        [GameParameters.CustomParameterUI("Prevent clicking-through")]
+        public bool lockOnHover = true;
+
+        [GameParameters.CustomParameterUI("Check Crew Assignment")]
+        public bool checkCrewAssignment = true;
+
+        [GameParameters.CustomParameterUI("Use Blizzy toolbar")]
+        public bool settings_BlizzyToolbar = false;
+
+
 #if false
         public override void SetDifficultyPreset(GameParameters.Preset preset)
         {

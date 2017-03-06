@@ -20,6 +20,7 @@ namespace WernherChecker
 
         public WCSettings()
         {
+            Log.Info("WCSettings");
             cfgLoaded = false;
             lockOnHover = true;
             checkCrewAssignment = true;
@@ -28,6 +29,9 @@ namespace WernherChecker
             windowX = WernherChecker.panelWidth + 3;
             windowY = 120;
             wantedToolbar = WernherChecker.toolbarType.STOCK;
+            Log.Info("WCSettings 2");
+
+           
         }
 
         public bool Load()
@@ -103,6 +107,7 @@ namespace WernherChecker
             Log.Info("[WernherChecker]: ========= Saving Settings =========");
             if (CfgExists() && cfgLoaded)
             {
+#if false
                 if (cfg.HasValue("lockOnHover"))
                     cfg.SetValue("lockOnHover", this.lockOnHover.ToString());
                 else
@@ -112,6 +117,7 @@ namespace WernherChecker
                     cfg.SetValue("checkCrewAssignment", this.checkCrewAssignment.ToString());
                 else
                     cfg.AddValue("checkCrewAssignment", this.checkCrewAssignment.ToString());
+#endif
                 //--------------------------------------------------------------------------
                 if (cfg.HasValue("toolbarType"))
                     cfg.SetValue("toolbarType", WernherChecker.Instance.activeToolbar.ToString());

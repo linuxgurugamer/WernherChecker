@@ -10,17 +10,17 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using KSP.UI.Screens;
-using UnityEngine.Events; 
+using UnityEngine.Events;
 
 namespace WernherChecker
 {
-    
-    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
+
+    [KSPAddon(KSPAddon.Startup.FlightAndEditor, false)]
     public class WernherChecker : MonoBehaviour
     {
         //Window variables
-        public static float panelWidth  = EditorPanels.Instance.partsEditor.panelTransform.rect.xMax;
-        public Rect mainWindow = new Rect(panelWidth + 3, 120, 0, 0);
+        public static float panelWidth = 100; //  = EditorPanels.Instance.partsEditor.panelTransform.rect.xMax;
+        public Rect mainWindow; // = new Rect(panelWidth + 3, 120, 0, 0);
         Rect settingsWindow = new Rect();
         bool showAdvanced = false;
         bool showSettings = false;
@@ -41,8 +41,11 @@ namespace WernherChecker
 
         //Other
         string Version = "";
-        UnityAction launchDelegate = new UnityAction(CrewCheck.OnButtonInput);
-        UnityAction defaultLaunchDelegate = new UnityAction(EditorLogic.fetch.launchVessel);
+        bool HideWC_UI = false;
+        internal static String _AssemblyName { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; } }
+        int baseWindowID = UnityEngine.Random.Range(1000, 2000000) + _AssemblyName.GetHashCode();
+        UnityAction launchDelegate; // = new UnityAction(CrewCheck.OnButtonInput);
+        UnityAction defaultLaunchDelegate; // = new UnityAction(EditorLogic.fetch.launchVessel);
         bool KCTInstalled = false;
         public toolbarType activeToolbar;
         bool settings_BlizzyToolbar = false;
@@ -56,7 +59,12 @@ namespace WernherChecker
         public Vector2 mousePos = Input.mousePosition;
         public static List<Part> VesselParts
         {
-            get { return EditorLogic.fetch.ship.Parts; }
+            get
+            {
+                if (HighLogic.LoadedScene != GameScenes.EDITOR)
+                    return null;
+                return EditorLogic.fetch.ship.Parts;
+            }
         }
 
         //Instances
@@ -86,33 +94,92 @@ namespace WernherChecker
             richText = true,
         };
 
+
+        public static List<String> installedMods = new List<String>();
+        static void buildModList()
+        {
+            Log.Info("buildModList");
+            //https://github.com/Xaiier/Kreeper/blob/master/Kreeper/Kreeper.cs#L92-L94 <- Thanks Xaiier!
+            foreach (AssemblyLoader.LoadedAssembly a in AssemblyLoader.loadedAssemblies)
+            {
+                string name = a.name;
+                Log.Info(string.Format("Loading assembly: {0}", name));
+                installedMods.Add(name);
+            }
+        }
+        public static bool hasMod(string modIdent)
+        {
+            if (installedMods.Count == 0)
+                buildModList();
+            return installedMods.Contains(modIdent);
+        }
+
+
+        public void Awake()
+        {
+            Log.Info("WernherChecker.Awake");
+            ReloadSettings();
+            GameEvents.OnGameSettingsApplied.Add(ReloadSettings);
+        }
+
+
+
+
+        void ReloadSettings()
+        {
+            Log.Info("ReloadSettings 1");
+            Settings.checkCrewAssignment = HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().checkCrewAssignment;
+            Log.Info("ReloadSettings 2");
+            Settings.lockOnHover = HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().lockOnHover;
+            Log.Info("ReloadSettings 3");
+            settings_BlizzyToolbar = HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().settings_BlizzyToolbar;
+            Log.Info("ReloadSettings 4");
+        }
+
+
         public void Start()
         {
-            Log.Warning("WernherChecker is loading...");
+            Log.Warning("WernherChecker is loading..., scene: " + HighLogic.LoadedScene.ToString());
             Version = this.GetType().Assembly.GetName().Version.ToString();
             Log.Warning(string.Format("WernherChecker Version is {0}", Version));
             Instance = this;
+            
             if (Settings.Load())
             {
                 minimized = Settings.minimized;
                 mainWindow.x = Settings.windowX;
                 mainWindow.y = Settings.windowY;
             }
+            
             checklistSystem.LoadChecklists();
-            GameEvents.onEditorScreenChange.Add(onEditorPanelChange);
-            GameEvents.onEditorShipModified.Add(checklistSystem.CheckVessel);
-            GameEvents.onEditorRestart.Add(checklistSystem.CheckVessel);
-            GameEvents.onEditorShowPartList.Add(checklistSystem.CheckVessel);
-
-            if (AssemblyLoader.loadedAssemblies.Any(a => a.dllName == "KerbalConstructionTime"))
+            
+            //if (AssemblyLoader.loadedAssemblies.Any(a => a.dllName == "KerbalConstructionTime"))
+            if (hasMod("KerbalConstructionTime"))
                 KCTInstalled = true;
             else
                 KCTInstalled = false;
-
-            if (Settings.checkCrewAssignment && !KCTInstalled)
+            if (HighLogic.LoadedScene == GameScenes.EDITOR)
             {
-                EditorLogic.fetch.launchBtn.onClick.RemoveListener(defaultLaunchDelegate);
-                EditorLogic.fetch.launchBtn.onClick.AddListener(launchDelegate);
+
+                panelWidth = EditorPanels.Instance.partsEditor.panelTransform.rect.xMax;
+                mainWindow = new Rect(panelWidth + 3, 120, 0, 0);
+                GameEvents.onEditorScreenChange.Add(onEditorPanelChange);
+                GameEvents.onEditorShipModified.Add(checklistSystem.CheckVessel);
+                GameEvents.onEditorRestart.Add(checklistSystem.CheckVessel);
+                GameEvents.onEditorShowPartList.Add(checklistSystem.CheckVessel);
+
+                launchDelegate = new UnityAction(CrewCheck.OnButtonInput);
+                defaultLaunchDelegate = new UnityAction(EditorLogic.fetch.launchVessel);
+
+                if (Settings.checkCrewAssignment && !KCTInstalled)
+                {
+                    EditorLogic.fetch.launchBtn.onClick.RemoveListener(defaultLaunchDelegate);
+                    EditorLogic.fetch.launchBtn.onClick.AddListener(launchDelegate);
+                }
+            }
+            else
+            {
+                mainWindow = new Rect(panelWidth + 3, 120, 0, 0);
             }
 
             if (Settings.wantedToolbar == toolbarType.BLIZZY && ToolbarManager.ToolbarAvailable)
@@ -122,7 +189,9 @@ namespace WernherChecker
             else
             {
                 AddToolbarButton(toolbarType.STOCK, true);
-            }  
+            }
+            GameEvents.onShowUI.Add(ShowUI);
+            GameEvents.onHideUI.Add(HideUI);
         }
 
         void OnDestroy()
@@ -135,12 +204,27 @@ namespace WernherChecker
                 selectionInProgress = false;
             }
 
-            GameEvents.onEditorScreenChange.Remove(onEditorPanelChange);
-            GameEvents.onEditorShipModified.Remove(checklistSystem.CheckVessel);
-            GameEvents.onEditorRestart.Remove(checklistSystem.CheckVessel);
-            GameEvents.onEditorShowPartList.Remove(checklistSystem.CheckVessel);
-
+            if (HighLogic.LoadedScene == GameScenes.EDITOR)
+            {
+                GameEvents.onEditorScreenChange.Remove(onEditorPanelChange);
+                GameEvents.onEditorShipModified.Remove(checklistSystem.CheckVessel);
+                GameEvents.onEditorRestart.Remove(checklistSystem.CheckVessel);
+                GameEvents.onEditorShowPartList.Remove(checklistSystem.CheckVessel);
+            }
             Settings.Save();
+            GameEvents.onShowUI.Remove(ShowUI);
+            GameEvents.onHideUI.Remove(HideUI);
+            GameEvents.OnGameSettingsApplied.Remove(ReloadSettings);
+        }
+
+
+        private void ShowUI()
+        {
+            HideWC_UI = false;
+        }
+        void HideUI()
+        {
+            HideWC_UI = true;
         }
 
         #region Toolbar stuff
@@ -168,7 +252,7 @@ namespace WernherChecker
                     AddToolbarButton(toolbarType.STOCK, true);
             }
 
-            if(type == toolbarType.STOCK)
+            if (type == toolbarType.STOCK)
             {
                 activeToolbar = toolbarType.STOCK;
                 if (ApplicationLauncher.Ready)
@@ -177,13 +261,23 @@ namespace WernherChecker
                 GameEvents.onGUIApplicationLauncherUnreadifying.Add(DestroyAppButton);
             }
         }
-        
+
         void CreateAppButton()
         {
-            appButton = ApplicationLauncher.Instance.AddModApplication(MiniOff, MiniOn, null, null, null, null, ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.FLIGHT, (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/icon", false));
+            appButton = ApplicationLauncher.Instance.AddModApplication(
+                MiniOn,
+                MiniOff,
+                null, null, null, null,
+                ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.FLIGHT,
+                (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/icon",
+                false));
+
             if (!minimized)
                 appButton.SetTrue(true);
-            minimized = !HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().alwaysOpen;
+            if (HighLogic.LoadedScene == GameScenes.EDITOR)
+                minimized = !HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().alwaysOpeninEditor;
+            if (HighLogic.LoadedScene == GameScenes.FLIGHT)
+                minimized = !HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().alwaysOpenInFlight;
         }
 
         void DestroyAppButton(GameScenes gameScenes)
@@ -219,29 +313,35 @@ namespace WernherChecker
             minimized = false;
         }
 
+
         void OnGUI()
         {
+            if (HideWC_UI)
+                return;
             mousePos = Input.mousePosition;
             mousePos.y = Screen.height - mousePos.y;
             if (!minimized)
-                mainWindow = GUILayout.Window(1, mainWindow, OnWindow, string.Format("WernherChecker v{0}", Version), windowStyle);
+                mainWindow = GUILayout.Window(baseWindowID + 1, mainWindow, OnWindow, string.Format("WernherChecker v{0}", Version), windowStyle);
             if (showSettings && !minimized)
-                settingsWindow = GUILayout.Window(2, settingsWindow, OnSettingsWindow, "WernherChecker - Settings", windowStyle);
+                settingsWindow = GUILayout.Window(baseWindowID + 2, settingsWindow, OnSettingsWindow, "WernherChecker - Settings", windowStyle);
             if (checklistSelected && checklistSystem.ActiveChecklist.items.Exists(i => i.paramsDisplayed) && !minimized)
-                checklistSystem.paramsWindow = GUILayout.Window(3, checklistSystem.paramsWindow, checklistSystem.DrawParamsWindow, "Edit Parameters", HighLogic.Skin.window);
-            
+                checklistSystem.paramsWindow = GUILayout.Window(baseWindowID + 3, checklistSystem.paramsWindow, checklistSystem.DrawParamsWindow, "Edit Parameters", HighLogic.Skin.window);
+
             mainWindow.x = Mathf.Clamp(mainWindow.x, 0, Screen.width - mainWindow.width);
             mainWindow.y = Mathf.Clamp(mainWindow.y, 0, Screen.height - mainWindow.height);
 
             if (partSelection != null && selectionInProgress)
-                partSelection.Update(mousePos);           
+                partSelection.Update(mousePos);
 
             if (Settings.lockOnHover)
             {
-                if (!minimized && (mainWindow.Contains(mousePos) || (showSettings && settingsWindow.Contains(mousePos)) || (checklistSystem.ActiveChecklist.items.Exists(i => i.paramsDisplayed) && checklistSystem.paramsWindow.Contains(mousePos))) && !InputLockManager.lockStack.ContainsKey("WernherChecker_windowLock"))
-                    EditorLogic.fetch.Lock(true, true, true, "WernherChecker_windowLock");
-                else if (((!mainWindow.Contains(mousePos) && !settingsWindow.Contains(mousePos) && !checklistSystem.paramsWindow.Contains(mousePos)) || minimized)  && InputLockManager.lockStack.ContainsKey("WernherChecker_windowLock"))
-                    EditorLogic.fetch.Unlock("WernherChecker_windowLock");
+                if (HighLogic.LoadedScene == GameScenes.EDITOR)
+                {
+                    if (!minimized && (mainWindow.Contains(mousePos) || (showSettings && settingsWindow.Contains(mousePos)) || (checklistSystem.ActiveChecklist.items.Exists(i => i.paramsDisplayed) && checklistSystem.paramsWindow.Contains(mousePos))) && !InputLockManager.lockStack.ContainsKey("WernherChecker_windowLock"))
+                        EditorLogic.fetch.Lock(true, true, true, "WernherChecker_windowLock");
+                    else if (((!mainWindow.Contains(mousePos) && !settingsWindow.Contains(mousePos) && !checklistSystem.paramsWindow.Contains(mousePos)) || minimized) && InputLockManager.lockStack.ContainsKey("WernherChecker_windowLock"))
+                        EditorLogic.fetch.Unlock("WernherChecker_windowLock");
+                }
             }
 
             DrawToolTip(globalTooltip);
@@ -263,8 +363,8 @@ namespace WernherChecker
             lastTooltip = tooltipText;
 
             if (tooltipText == "" || hoverTime < 0.5f)
-                return;           
-            
+                return;
+
             //Log.Info(tooltipText);           
             GUIContent tooltip = new GUIContent(tooltipText);
             Rect tooltipPosition = new Rect(mousePos.x + 15, mousePos.y + 15, 0, 0);
@@ -283,11 +383,18 @@ namespace WernherChecker
             GUILayout.BeginVertical(boxStyle);
             foreach (Checklist checklist in checklistSystem.availableChecklists)
             {
-                if (GUILayout.Button(new GUIContent(checklist.name, "Items:\n" + string.Join("\n", checklist.items.Select(x => "<color=cyan><b>–</b></color> <i>" + x.name + "</i>").ToArray())), buttonStyle))
+                //parsedItem.editorOnly = (scene == "editor");
+                //parsedItem.flightOnly = (scene == "flight");
+                if (checklist.editorOnly && HighLogic.LoadedScene == GameScenes.EDITOR ||
+                    checklist.flightOnly && HighLogic.LoadedScene == GameScenes.FLIGHT ||
+                    (checklist.editorOnly == false && checklist.flightOnly == false))
                 {
-                    checklistSystem.ActiveChecklist = checklist;
-                    checklistSelected = true;
-                    checklistSystem.CheckVessel();
+                    if (GUILayout.Button(new GUIContent(checklist.name, "Items:\n" + string.Join("\n", checklist.items.Select(x => "<color=cyan><b>–</b></color> <i>" + x.name + "</i>").ToArray())), buttonStyle))
+                    {
+                        checklistSystem.ActiveChecklist = checklist;
+                        checklistSelected = true;
+                        checklistSystem.CheckVessel();
+                    }
                 }
             }
             if (checklistSystem.availableChecklists.Count == 0)
@@ -324,7 +431,7 @@ namespace WernherChecker
             if (GUILayout.Button(new GUIContent("Reload data", "Reload the config file"), buttonStyle))
             {
                 Settings.Load();
-                if(checklistSystem.LoadChecklists())
+                if (checklistSystem.LoadChecklists())
                     checklistSelected = false;
                 mainWindow.height = 0;
             }
@@ -336,15 +443,20 @@ namespace WernherChecker
                 if (!settings_CheckCrew && Settings.checkCrewAssignment)
                 {
                     Settings.checkCrewAssignment = false;
-                    EditorLogic.fetch.launchBtn.onClick.RemoveListener(launchDelegate);
-                    EditorLogic.fetch.launchBtn.onClick.AddListener(defaultLaunchDelegate);
+                    if (HighLogic.LoadedScene == GameScenes.EDITOR)
+                    {
+                        EditorLogic.fetch.launchBtn.onClick.RemoveListener(launchDelegate);
+                        EditorLogic.fetch.launchBtn.onClick.AddListener(defaultLaunchDelegate);
+                    }
                 }
-
-                else if(settings_CheckCrew && !Settings.checkCrewAssignment)
+                else if (settings_CheckCrew && !Settings.checkCrewAssignment)
                 {
                     Settings.checkCrewAssignment = true;
-                    EditorLogic.fetch.launchBtn.onClick.RemoveListener(defaultLaunchDelegate);
-                    EditorLogic.fetch.launchBtn.onClick.AddListener(launchDelegate);
+                    if (HighLogic.LoadedScene == GameScenes.EDITOR)
+                    {
+                        EditorLogic.fetch.launchBtn.onClick.RemoveListener(defaultLaunchDelegate);
+                        EditorLogic.fetch.launchBtn.onClick.AddListener(launchDelegate);
+                    }
                 }
                 //--------------------------------------------------------------------------
                 if (activeToolbar == toolbarType.BLIZZY && !settings_BlizzyToolbar)
@@ -355,6 +467,7 @@ namespace WernherChecker
 
                 if (activeToolbar == toolbarType.STOCK && settings_BlizzyToolbar)
                 {
+                    // apparently don't need a correct value in following call
                     DestroyAppButton(GameScenes.EDITOR);
                     AddToolbarButton(toolbarType.BLIZZY, true);
                 }
@@ -368,12 +481,12 @@ namespace WernherChecker
         }
 
         Vector2 scrollPos;
-        const int SCROLL_GREATER  =  12;
+        const int SCROLL_GREATER = 12;
 
         void OnWindow(int windowID)
         {
-           
-            GUILayout.BeginVertical( GUILayout.Width(225));
+
+            GUILayout.BeginVertical(GUILayout.Width(225));
 
             if (Settings.cfgLoaded) //If the cfg file exists
             {
@@ -393,6 +506,9 @@ namespace WernherChecker
                         for (int i = 0; i < checklistSystem.ActiveChecklist.items.Count; i++)
                         {
                             ChecklistItem tempItem = checklistSystem.ActiveChecklist.items[i];
+                            if (tempItem.editorOnly && HighLogic.LoadedScene != GameScenes.EDITOR ||
+                                 tempItem.flightOnly && HighLogic.LoadedScene != GameScenes.FLIGHT)
+                                continue;
                             tempItem.DrawItem();
                             checklistSystem.ActiveChecklist.items[i] = tempItem;
                         }
@@ -415,9 +531,17 @@ namespace WernherChecker
                         }
 
                         //-------------------------------------------------------------------------------------------
-                        //⇓︾▼↓︽
-                        if (showAdvanced) //Advanced options showed
+                        //
+
+                        if (HighLogic.LoadedScene == GameScenes.FLIGHT)
                         {
+                            checkSelected = false;
+                            checklistSystem.CheckVessel();
+                        }
+
+                        if (showAdvanced && HighLogic.LoadedScene == GameScenes.EDITOR) //Advanced options showed
+                        {
+#if false
                             if (!showSettings)
                             {
                                 if (GUILayout.Button("Show settings", buttonStyle, GUILayout.Height(24f)))
@@ -432,23 +556,25 @@ namespace WernherChecker
                                     settings_LockWindow = Settings.lockOnHover;
                                 }
                             }
-
-                            if (GUILayout.Button(new GUIContent("Recheck vessel", "Use this if the automatic checking doesn't work for some reason"), buttonStyle,GUILayout.Height(24f)))
+#endif
+                            if (GUILayout.Button(new GUIContent("Recheck vessel", "Use this if the automatic checking doesn't work for some reason"), buttonStyle, GUILayout.Height(24f)))
                                 checklistSystem.CheckVessel();
 
-                            GUILayout.Label("Checked area:", labelStyle);
-                            if (GUILayout.Toggle(!checkSelected, new GUIContent("Entire ship", "Check the entire ship"), toggleStyle) != !checkSelected)
+
                             {
-                                checkSelected = false;
-                                checklistSystem.CheckVessel();
-                                mainWindow.height = 0f;
+                                GUILayout.Label("Checked area:", labelStyle);
+                                if (GUILayout.Toggle(!checkSelected, new GUIContent("Entire ship", "Check the entire ship"), toggleStyle) != !checkSelected)
+                                {
+                                    checkSelected = false;
+                                    checklistSystem.CheckVessel();
+                                    mainWindow.height = 0f;
+                                }
+                                if (GUILayout.Toggle(checkSelected, new GUIContent(partSelection == null || EditorLogic.RootPart == null ? "Selected parts (0)" : "Selected parts (" + partSelection.selectedParts.Intersect(EditorLogic.fetch.ship.parts).ToList().Count + ")", "Check only a selected section of the ship (e.g. lander/booster stage)"), toggleStyle) == !checkSelected)
+                                {
+                                    checkSelected = true;
+                                    checklistSystem.CheckVessel();
+                                }
                             }
-                            if (GUILayout.Toggle(checkSelected, new GUIContent(partSelection == null || EditorLogic.RootPart == null ? "Selected parts (0)" : "Selected parts (" + partSelection.selectedParts.Intersect(EditorLogic.fetch.ship.parts).ToList().Count + ")", "Check only a selected section of the ship (e.g. lander/booster stage)"), toggleStyle) == !checkSelected)
-                            {
-                                checkSelected = true;
-                                checklistSystem.CheckVessel();
-                            }
-
                             if (checkSelected && EditorLogic.RootPart != null)
                             {
                                 if (GUILayout.Button(new GUIContent("Select parts", "Select the checked parts"), buttonStyle, GUILayout.Height(24f)))
@@ -462,7 +588,8 @@ namespace WernherChecker
                                     partSelection = new PartSelection();
                                     selectionInProgress = true;
                                     selectedShowed = false;
-                                    InputLockManager.SetControlLock(ControlTypes.EDITOR_PAD_PICK_PLACE | ControlTypes.EDITOR_UI, "WernherChecker_partSelection");
+                                    if (HighLogic.LoadedScene == GameScenes.EDITOR)
+                                        InputLockManager.SetControlLock(ControlTypes.EDITOR_PAD_PICK_PLACE | ControlTypes.EDITOR_UI, "WernherChecker_partSelection");
                                 }
 
                                 if (!selectedShowed)
@@ -500,11 +627,13 @@ namespace WernherChecker
                             }
 
                         }
-
-                        if (GUILayout.Button(new GUIContent(showAdvanced ? "︽ Fewer Options ︽" : "︾ More Options ︾", "Show/Hide advanced options"), buttonStyle, GUILayout.Height(24f)))
+                        if (HighLogic.LoadedScene == GameScenes.EDITOR)
                         {
-                            mainWindow.height = 0f;
-                            showAdvanced = !showAdvanced;
+                            if (GUILayout.Button(new GUIContent(showAdvanced ? "︽ Fewer Options ︽" : "︾ More Options ︾", "Show/Hide advanced options"), buttonStyle, GUILayout.Height(24f)))
+                            {
+                                mainWindow.height = 0f;
+                                showAdvanced = !showAdvanced;
+                            }
                         }
                     }
                     else
@@ -520,7 +649,8 @@ namespace WernherChecker
                                 part.SetHighlightDefault();
                             }
                             selectionInProgress = false;
-                            InputLockManager.RemoveControlLock("WernherChecker_partSelection");
+                            if (HighLogic.LoadedScene == GameScenes.EDITOR)
+                                InputLockManager.RemoveControlLock("WernherChecker_partSelection");
                             checklistSystem.CheckVessel();
                         }
                     }

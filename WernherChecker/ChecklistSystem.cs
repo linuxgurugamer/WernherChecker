@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using KIS;
+using RealChute;
 
 namespace WernherChecker
 {
@@ -35,7 +36,7 @@ namespace WernherChecker
         public static GUIStyle normalLabel = new GUIStyle(HighLogic.Skin.label);
         public static GUIStyle orangeLabel = new GUIStyle(HighLogic.Skin.label) { normal = { textColor = new Color(1f, 0.5f, 0.2f) } };
         public static GUIStyle centredLabel = new GUIStyle(HighLogic.Skin.label) { alignment = TextAnchor.MiddleCenter };
-        
+
 
         public bool LoadChecklists()
         {
@@ -50,7 +51,13 @@ namespace WernherChecker
                         Checklist parsedChecklist = new Checklist();
                         parsedChecklist.items = new List<ChecklistItem>();
                         parsedChecklist.name = checklistNode.GetValue("name");
+                        if (checklistNode.HasValue("scene"))
+                        {
+                            var scene = checklistNode.GetValue("scene");
 
+                            parsedChecklist.editorOnly = (scene == "editor");
+                            parsedChecklist.flightOnly = (scene == "flight");
+                        }
                         ///Begining item cycle
                         foreach (ConfigNode itemNode in checklistNode.GetNodes("CHECKLIST_ITEM"))
                         {
@@ -60,15 +67,14 @@ namespace WernherChecker
                             parsedItem.name = itemNode.GetValue("name");
                             if (itemNode.HasValue("scene"))
                             {
-                                Log.Info("scene found");
                                 var scene = itemNode.GetValue("scene");
-                                Log.Info("scene: " + scene);
-                                if (scene == "editor")
-                                    parsedItem.editorOnly = true;
+
+                                parsedItem.editorOnly = (scene == "editor");
+                                parsedItem.flightOnly = (scene == "flight");
                             }
                             if (!bool.TryParse(itemNode.GetValue("isManual"), out parsedItem.isManual))
                                 parsedItem.isManual = false;
-                            if(!bool.TryParse(itemNode.GetValue("allRequired"), out parsedItem.allRequired))
+                            if (!bool.TryParse(itemNode.GetValue("allRequired"), out parsedItem.allRequired))
                                 parsedItem.allRequired = true; ;
 
                             //Begining criterion cycle
@@ -99,11 +105,18 @@ namespace WernherChecker
 
         public void CheckVessel()
         {
+            if (HighLogic.LoadedScene != GameScenes.EDITOR)
+                CheckActiveVessel(FlightGlobals.ActiveVessel);
+                else
             CheckVessel(EditorLogic.fetch.ship);
         }
 
+
         public void CheckVessel(ShipConstruct ship)
         {
+            if (HighLogic.LoadedScene != GameScenes.EDITOR)
+                return;
+
             if (!MainInstance.checklistSelected)
                 return;
 
@@ -124,6 +137,7 @@ namespace WernherChecker
                 ChecklistItem item = activeChecklist.items[j];
                 if (item.isManual)
                     continue;
+
                 item.state = true;
                 for (int i = 0; i < item.criteria.Count; i++)
                 //foreach(Criterion crton in item.criteria)
@@ -162,6 +176,63 @@ namespace WernherChecker
             }
         }
 
+        public void CheckActiveVessel(Vessel ship)
+        {
+            Log.Info("CheckActiveVessel");
+            if (!MainInstance.checklistSelected)
+                return;
+
+            if (MainInstance.checkSelected && MainInstance.partSelection != null)
+                partsToCheck = MainInstance.partSelection.selectedParts.Intersect(ship.Parts).ToList();
+            else
+                partsToCheck = ship.Parts;
+
+            for (int j = 0; j < activeChecklist.items.Count; j++)
+            //foreach (ChecklistItem item in activeChecklist.items)
+            {
+                ChecklistItem item = activeChecklist.items[j];
+                if (item.isManual)
+                    continue;
+
+                item.state = true;
+                for (int i = 0; i < item.criteria.Count; i++)
+                //foreach(Criterion crton in item.criteria)
+                {
+                    Criterion crton = item.criteria[i];
+                    switch (crton.type)
+                    {
+                        case CriterionType.Module:
+                            crton.met = CheckForModules(crton);
+                            break;
+                        case CriterionType.Part:
+                            crton.met = CheckForParts(crton);
+                            break;
+                        case CriterionType.MinResourceLevel:
+                            crton.met = CheckForResourceLevel(crton);
+                            break;
+                        case CriterionType.MinResourceCapacity:
+                            crton.met = CheckForResourceCapacity(crton);
+                            break;
+                        case CriterionType.CrewMember:
+                            crton.met = CheckForCrewMember(crton);
+                            break;
+                    }
+                    item.criteria[i] = crton;
+                }
+                if (!item.allRequired)
+                {
+                    if (item.criteria.TrueForAll(c => !c.met))
+                        item.state = false;
+                }
+                else if (item.criteria.Any(c => !c.met))
+                    item.state = false;
+
+                activeChecklist.items[j] = item;
+                continue;
+            }
+        }
+
+
         bool CheckForKISModules(Criterion crton)
         {
             int quantity = 0;
@@ -170,7 +241,7 @@ namespace WernherChecker
                 foreach (var p in partsToCheck.Where(p => p.Modules.Contains("ModuleKISInventory")))
                 {
                     var inv = p.FindModuleImplementing<ModuleKISInventory>();
-                    
+
                     foreach (var i in inv.items)
                     {
                         if (i.Value.equippedPart.Modules.Contains(module))
@@ -185,6 +256,39 @@ namespace WernherChecker
             return false;
         }
 
+        int CheckForParachutes(string module)
+        {
+            int quantity = 0;
+            if (partsToCheck.Where(p => p.Modules.Contains(module)).Count() > 0)
+            {
+                foreach (Part p1 in partsToCheck.Where(p => p.Modules.Contains(module)))
+                {
+                    switch (module)
+                    { 
+                    case "ModuleParachute":
+                        foreach (ModuleParachute m in p1.Modules.GetModules<ModuleParachute>() )
+                        {
+                            if (m.deploymentState == ModuleParachute.deploymentStates.STOWED)
+                                quantity++;
+                        }
+                        break;
+                    case "RealChuteModule":
+                        foreach (RealChuteModule m in p1.Modules.GetModules<RealChuteModule>())
+                        {
+                            foreach (var par in m.parachutes)
+                            if (par.DeploymentState == DeploymentStates.STOWED)
+                                quantity++;
+                        }
+                        break;
+                    case "RealChuteFAR":
+                        break;
+                    }
+
+
+                }
+            }
+            return quantity;
+        }
         bool CheckForModules(Criterion crton)
         {
             if (crton.reqModName == "KIS")
@@ -192,7 +296,10 @@ namespace WernherChecker
             int quantity = 0;
             foreach (string module in crton.modules)
             {
-                quantity += partsToCheck.Where(p => p.Modules.Contains(module)).Count();
+                if (module == "ModuleParachute" || module == "RealChuteModule" || module == "RealChuteFAR")
+                    quantity += CheckForParachutes(module);
+                else
+                    quantity += partsToCheck.Where(p => p.Modules.Contains(module)).Count();
             }
             if (quantity >= int.Parse(crton.parameter.ToString()))
                 return true;
@@ -241,23 +348,37 @@ namespace WernherChecker
 
         bool CheckForCrewMember(Criterion crton)
         {
-            try
+            if (HighLogic.LoadedScene != GameScenes.EDITOR)
             {
-                foreach (PartCrewManifest part in KSP.UI.CrewAssignmentDialog.Instance.GetManifest().GetCrewableParts().Where(p => partsToCheck.Exists(pt => pt.partInfo == p.PartInfo)))
-                {               
-                    if (part.GetPartCrew().Where(c => c != null).Any(c => c.experienceTrait.Title == crton.experienceTrait && c.experienceLevel >= int.Parse(crton.parameter.ToString())))
+                foreach (Part p in FlightGlobals.ActiveVessel.parts)
+                {
+                    if (p.protoModuleCrew.Count > 0)
                     {
-                        //Log.Info("Crew OK");
                         return true;
                     }
                 }
-                //Log.Info("Crew KO");
                 return false;
             }
-            catch(Exception ex)
+            else
             {
-                Log.Warning("[WernherChecker]: Error checking crew:\n" + ex + "\n\n<b><color=lime>Please note, that this can sometimes happen after entering the editor and attaching the part for the first time.</color> <color=#ff4444ff>If this is not the case, please, report it.</color></b>");
-                return false;
+                try
+                {
+                    foreach (PartCrewManifest part in KSP.UI.CrewAssignmentDialog.Instance.GetManifest().GetCrewableParts().Where(p => partsToCheck.Exists(pt => pt.partInfo == p.PartInfo)))
+                    {
+                        if (part.GetPartCrew().Where(c => c != null).Any(c => c.experienceTrait.Title == crton.experienceTrait && c.experienceLevel >= int.Parse(crton.parameter.ToString())))
+                        {
+                            //Log.Info("Crew OK");
+                            return true;
+                        }
+                    }
+                    //Log.Info("Crew KO");
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("[WernherChecker]: Error checking crew:\n" + ex + "\n\n<b><color=lime>Please note, that this can sometimes happen after entering the editor and attaching the part for the first time.</color> <color=#ff4444ff>If this is not the case, please, report it.</color></b>");
+                    return false;
+                }
             }
         }
 
@@ -302,7 +423,7 @@ namespace WernherChecker
             GUILayout.FlexibleSpace();
             crton.tempParam = GUILayout.TextField(crton.tempParam.ToString(), 11, HighLogic.Skin.textField, GUILayout.Width(68f));
             GUILayout.EndHorizontal();
-            
+
             return crton.tempParam;
         }
 

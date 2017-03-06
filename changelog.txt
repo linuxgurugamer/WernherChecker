@@ -3,7 +3,7 @@
 	Renamed Data directory to PluginData
 	Moved PNGs into Images directory
 	Moved DLL into the Plugins directory
-	Added AssemblyVersion.tt to write te version from the .version file into the DLL
+	Added AssemblyVersion.tt to write the version from the .version file into the DLL
 	Added new optional field for CHECKLIST_ITEM.  If present, this checklist item will only be visible if the specified mod is installed
 		requiredMod = (modname)
 	Currently this won't work for KIS and the ModuleKISItemAttachTool, since a tool in the inventory is not actually part of the vessel
@@ -17,6 +17,10 @@
 	Fixed issue where KIS wa showing up all the time, even when KIS wasn't installed
 	Added scrolling window when greater than 12 items in list
 	Added basic settings page to control whether list is shown when entering editor
+
+0.5.4
+	Enabled checklists in flight scene
+		Parachutes have special check in flight, they must be STOWED to be counted 
 
 ------------- Version v0.5 (Dec 21) -------------
 * KSP 1.2.2 support

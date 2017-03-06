@@ -47,7 +47,7 @@ namespace WernherChecker
 
         public string reqModName;
         public bool valid;
-
+#if false
         public static List<String> installedMods = new List<String>();
         public void buildModList()
         {
@@ -66,7 +66,7 @@ namespace WernherChecker
                 buildModList();
             return installedMods.Contains(modIdent);
         }
-
+#endif
 
         public Criterion(ConfigNode node)
         {
@@ -94,7 +94,7 @@ namespace WernherChecker
                 Log.Info("requiredMod found");
                 reqModName = node.GetValue("requiredMod");
                 Log.Info("reqModName: " + reqModName);
-                if (!hasMod(reqModName))
+                if (!WernherChecker.hasMod(reqModName))
                 {
                     Log.Info("required mod not found");
                     valid = false;

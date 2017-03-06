@@ -49,6 +49,7 @@ namespace WernherChecker
 
         public string name;
         public bool editorOnly = false;
+        public bool flightOnly = false;
         public bool state;
         public bool isManual = false;
         public bool allRequired = true;
