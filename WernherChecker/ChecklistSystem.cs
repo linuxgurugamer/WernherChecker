@@ -107,8 +107,8 @@ namespace WernherChecker
         {
             if (HighLogic.LoadedScene != GameScenes.EDITOR)
                 CheckActiveVessel(FlightGlobals.ActiveVessel);
-                else
-            CheckVessel(EditorLogic.fetch.ship);
+            else
+                CheckVessel(EditorLogic.fetch.ship);
         }
 
 
@@ -256,46 +256,61 @@ namespace WernherChecker
             return false;
         }
 
+        int checkForRealChutes(Part p1)
+        {
+            int quantity = 0;
+            foreach (RealChuteModule m in p1.Modules.GetModules<RealChuteModule>())
+            {
+                foreach (var par in m.parachutes)
+                    if (par.DeploymentState == DeploymentStates.STOWED)
+                        quantity++;
+            }
+            Log.Info("RealChuteModule: " + quantity.ToString());
+            return quantity;
+        }
         int CheckForParachutes(string module)
         {
+            Log.Info("CheckForParachutes");
             int quantity = 0;
             if (partsToCheck.Where(p => p.Modules.Contains(module)).Count() > 0)
             {
                 foreach (Part p1 in partsToCheck.Where(p => p.Modules.Contains(module)))
                 {
+                    Log.Info("part: " + p1.partInfo.name);
                     switch (module)
-                    { 
-                    case "ModuleParachute":
-                        foreach (ModuleParachute m in p1.Modules.GetModules<ModuleParachute>() )
-                        {
-                            if (m.deploymentState == ModuleParachute.deploymentStates.STOWED)
-                                quantity++;
-                        }
-                        break;
-                    case "RealChuteModule":
-                        foreach (RealChuteModule m in p1.Modules.GetModules<RealChuteModule>())
-                        {
-                            foreach (var par in m.parachutes)
-                            if (par.DeploymentState == DeploymentStates.STOWED)
-                                quantity++;
-                        }
-                        break;
-                    case "RealChuteFAR":
-                        break;
+                    {
+                        case "ModuleParachute":
+                            foreach (ModuleParachute m in p1.Modules.GetModules<ModuleParachute>())
+                            {
+                                if (m.deploymentState == ModuleParachute.deploymentStates.STOWED)
+                                    quantity++;
+                            }
+                            Log.Info("ModuleParachute: " + quantity.ToString());
+                            break;
+                        case "RealChuteModule":
+                            if (WernherChecker.hasMod("RealChute"))
+                                quantity += checkForRealChutes(p1);
+
+                            break;
+                        case "RealChuteFAR":
+                            break;
                     }
 
 
                 }
             }
+            Log.Info("CheckForParachutes, module: " + module + "   quantity: " + quantity.ToString());
             return quantity;
         }
         bool CheckForModules(Criterion crton)
         {
+            Log.Info("CheckForModules");
             if (crton.reqModName == "KIS")
                 return CheckForKISModules(crton);
             int quantity = 0;
             foreach (string module in crton.modules)
             {
+                Log.Info("module: " + module);
                 if (module == "ModuleParachute" || module == "RealChuteModule" || module == "RealChuteFAR")
                     quantity += CheckForParachutes(module);
                 else
@@ -361,6 +376,9 @@ namespace WernherChecker
             }
             else
             {
+                if (KSP.UI.CrewAssignmentDialog.Instance == null || KSP.UI.CrewAssignmentDialog.Instance.GetManifest() == null)
+                    return false;
+
                 try
                 {
                     foreach (PartCrewManifest part in KSP.UI.CrewAssignmentDialog.Instance.GetManifest().GetCrewableParts().Where(p => partsToCheck.Exists(pt => pt.partInfo == p.PartInfo)))
