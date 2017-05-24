@@ -5,8 +5,7 @@ set H=R:\KSP_1.2.2_dev
 echo %H%
 
 copy WernherChecker\bin\Release\WernherChecker.dll GameData\WernherChecker\Plugins
-rem xcopy /E /Y .GameData\WernherChecker %H%\GameData\WernherChecker
-pause
+
 
 set DEFHOMEDRIVE=d:
 set DEFHOMEDIR=%DEFHOMEDRIVE%%HOMEPATH%
@@ -49,9 +48,7 @@ if "%build%" NEQ "0"  set VERSION=%VERSION%.%build%
 
 echo %VERSION%
 del a.version
-pause
 
 set FILE="%RELEASEDIR%\WernherChecker-%VERSION%-%1.zip"
 IF EXIST %FILE% del /F %FILE%
 %ZIP% a -tzip %FILE% GameData\WernherChecker 
-pause

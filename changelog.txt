@@ -26,6 +26,8 @@
 	Fixed error when Realchutes wasn't installed
 	Fixed nullref in CheckForCrewMember which happened first time in the editor.  This was a very old bug, there was a try/catch around it because it hadn't been fixed
 
+0.5.5.1
+	Updated config file to have ModuleRCSFX along with ModuleRCS
 ------------- Version v0.5 (Dec 21) -------------
 * KSP 1.2.2 support
 
