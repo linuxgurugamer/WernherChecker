@@ -20,6 +20,7 @@ namespace WernherChecker
         public override string Title { get { return "General Settings"; } }
         public override GameParameters.GameMode GameMode { get { return GameParameters.GameMode.ANY; } }
         public override string Section { get { return "Wernher's Checker"; } }
+        public override string DisplaySection { get { return "Wernher's Checker"; } }
         public override int SectionOrder { get { return 1; } }
         public override bool HasPresets { get { return false; } }
 
