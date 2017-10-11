@@ -1,8 +1,6 @@
 
 
 @echo off
-set H=R:\KSP_1.2.2_dev
-echo %H%
 
 copy WernherChecker\bin\Release\WernherChecker.dll GameData\WernherChecker\Plugins
 

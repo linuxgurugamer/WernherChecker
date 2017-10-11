@@ -117,16 +117,17 @@ namespace WernherChecker
             if (HighLogic.LoadedScene != GameScenes.EDITOR)
                 return;
 
-            if (!MainInstance.checklistSelected)
+            if (MainInstance == null || !MainInstance.checklistSelected)
                 return;
 
             if (EditorLogic.RootPart == null || (MainInstance.partSelection == null && MainInstance.checkSelected))
             {
-                ActiveChecklist.items.ForEach(i => i.state = false);
+                if (ActiveChecklist.items != null)
+                    ActiveChecklist.items.ForEach(i => i.state = false);
                 return;
             }
 
-            if (MainInstance.checkSelected && MainInstance.partSelection != null)
+            if (MainInstance.checkSelected && MainInstance.partSelection != null && MainInstance.partSelection.selectedParts != null)
                 partsToCheck = MainInstance.partSelection.selectedParts.Intersect(ship.Parts).ToList();
             else
                 partsToCheck = ship.Parts;
