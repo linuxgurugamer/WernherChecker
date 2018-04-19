@@ -12,6 +12,9 @@ using UnityEngine;
 using KSP.UI.Screens;
 using UnityEngine.Events;
 
+using ClickThroughFix;
+using ToolbarControl_NS;
+
 namespace WernherChecker
 {
 
@@ -47,15 +50,16 @@ namespace WernherChecker
         UnityAction launchDelegate; // = new UnityAction(CrewCheck.OnButtonInput);
         UnityAction defaultLaunchDelegate; // = new UnityAction(EditorLogic.fetch.launchVessel);
         bool KCTInstalled = false;
-        public toolbarType activeToolbar;
+        //public toolbarType activeToolbar;
         bool settings_BlizzyToolbar = false;
         bool settings_CheckCrew = true;
         bool settings_LockWindow = true;
         public static string DataPath = KSPUtil.ApplicationRootPath + "GameData/WernherChecker/PluginData/";
         public static Texture2D settingsTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/settings", false);
         public static Texture2D tooltipBGTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/tooltip_BG", false);
-        IButton wcbutton;
-        ApplicationLauncherButton appButton;
+        //IButton wcbutton;
+        //ApplicationLauncherButton appButton;
+        ToolbarControl toolbarControl;
         public Vector2 mousePos = Input.mousePosition;
         public static List<Part> VesselParts
         {
@@ -196,8 +200,9 @@ namespace WernherChecker
 
         void OnDestroy()
         {
-            if (activeToolbar == toolbarType.BLIZZY)
-                wcbutton.Destroy();
+            toolbarControl.OnDestroy();
+            Destroy(toolbarControl);
+
             if (InputLockManager.lockStack.ContainsKey("WernherChecker_partSelection"))
             {
                 InputLockManager.RemoveControlLock("WernherChecker_partSelection");
@@ -220,73 +225,49 @@ namespace WernherChecker
 
         private void ShowUI()
         {
+            Log.Info("ShowUI");
             HideWC_UI = false;
         }
         void HideUI()
         {
+            Log.Info("HideUI");
             HideWC_UI = true;
         }
 
-        #region Toolbar stuff
+#region Toolbar stuff
         void AddToolbarButton(toolbarType type, bool useStockIfProblem)
         {
-            if (type == toolbarType.BLIZZY)
-            {
-                if (ToolbarManager.ToolbarAvailable)
-                {
-                    {
-                        activeToolbar = toolbarType.BLIZZY;
-                        wcbutton = ToolbarManager.Instance.add("WernherChecker", "wcbutton"); //creating toolbar button
-                        wcbutton.TexturePath = "WernherChecker/Images/icon_24";
-                        wcbutton.ToolTip = "WernherChecker";
-                        wcbutton.OnClick += (e) =>
-                        {
-                            if (minimizedManually)
-                                MiniOff();
-                            else
-                                MiniOn();
-                        };
-                    }
-                }
-                else if (useStockIfProblem)
-                    AddToolbarButton(toolbarType.STOCK, true);
-            }
 
-            if (type == toolbarType.STOCK)
-            {
-                activeToolbar = toolbarType.STOCK;
-                if (ApplicationLauncher.Ready)
                     CreateAppButton();
-                GameEvents.onGUIApplicationLauncherReady.Add(CreateAppButton);
-                GameEvents.onGUIApplicationLauncherUnreadifying.Add(DestroyAppButton);
-            }
-        }
 
+        }
+        internal const string MODID = "WernerChecker_NS";
+        internal const string MODNAME = "Wernher's Checker";
         void CreateAppButton()
         {
-            appButton = ApplicationLauncher.Instance.AddModApplication(
-                MiniOn,
+
+            toolbarControl = gameObject.AddComponent<ToolbarControl>();
+            toolbarControl.AddToAllToolbars(MiniOn,
                 MiniOff,
-                null, null, null, null,
                 ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH | ApplicationLauncher.AppScenes.FLIGHT,
-                (Texture)GameDatabase.Instance.GetTexture("WernherChecker/Images/icon",
-                false));
+                MODID,
+                "wernerCheckerButton",
+                "WernherChecker/Images/icon-38",
+                "WernherChecker/Images/icon-24",
+                MODNAME
+            );
+
 
             if (!minimized)
-                appButton.SetTrue(true);
+                toolbarControl.SetTrue(true);
             if (HighLogic.LoadedScene == GameScenes.EDITOR)
                 minimized = !HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().alwaysOpeninEditor;
             if (HighLogic.LoadedScene == GameScenes.FLIGHT)
                 minimized = !HighLogic.CurrentGame.Parameters.CustomParams<WernersSettings>().alwaysOpenInFlight;
         }
 
-        void DestroyAppButton(GameScenes gameScenes)
-        {
-            ApplicationLauncher.Instance.RemoveModApplication(appButton);
-            GameEvents.onGUIApplicationLauncherReady.Remove(CreateAppButton);
-            GameEvents.onGUIApplicationLauncherUnreadifying.Remove(DestroyAppButton);
-        }
-        #endregion
+
+#endregion
 
         void onEditorPanelChange(EditorScreen screen)
         {
@@ -321,11 +302,11 @@ namespace WernherChecker
             mousePos = Input.mousePosition;
             mousePos.y = Screen.height - mousePos.y;
             if (!minimized)
-                mainWindow = GUILayout.Window(baseWindowID + 1, mainWindow, OnWindow, string.Format("WernherChecker v{0}", Version), windowStyle);
+                mainWindow = ClickThruBlocker.GUILayoutWindow(baseWindowID + 1, mainWindow, OnWindow, string.Format("WernherChecker v{0}", Version), windowStyle);
             if (showSettings && !minimized)
-                settingsWindow = GUILayout.Window(baseWindowID + 2, settingsWindow, OnSettingsWindow, "WernherChecker - Settings", windowStyle);
+                settingsWindow = ClickThruBlocker.GUILayoutWindow(baseWindowID + 2, settingsWindow, OnSettingsWindow, "WernherChecker - Settings", windowStyle);
             if (checklistSelected && checklistSystem.ActiveChecklist.items.Exists(i => i.paramsDisplayed) && !minimized)
-                checklistSystem.paramsWindow = GUILayout.Window(baseWindowID + 3, checklistSystem.paramsWindow, checklistSystem.DrawParamsWindow, "Edit Parameters", HighLogic.Skin.window);
+                checklistSystem.paramsWindow = ClickThruBlocker.GUILayoutWindow(baseWindowID + 3, checklistSystem.paramsWindow, checklistSystem.DrawParamsWindow, "Edit Parameters", HighLogic.Skin.window);
 
             mainWindow.x = Mathf.Clamp(mainWindow.x, 0, Screen.width - mainWindow.width);
             mainWindow.y = Mathf.Clamp(mainWindow.y, 0, Screen.height - mainWindow.height);
@@ -459,18 +440,6 @@ namespace WernherChecker
                     }
                 }
                 //--------------------------------------------------------------------------
-                if (activeToolbar == toolbarType.BLIZZY && !settings_BlizzyToolbar)
-                {
-                    wcbutton.Destroy();
-                    AddToolbarButton(toolbarType.STOCK, true);
-                }
-
-                if (activeToolbar == toolbarType.STOCK && settings_BlizzyToolbar)
-                {
-                    // apparently don't need a correct value in following call
-                    DestroyAppButton(GameScenes.EDITOR);
-                    AddToolbarButton(toolbarType.BLIZZY, true);
-                }
 
                 showSettings = false;
             }
@@ -541,22 +510,7 @@ namespace WernherChecker
 
                         if (showAdvanced && HighLogic.LoadedScene == GameScenes.EDITOR) //Advanced options showed
                         {
-#if false
-                            if (!showSettings)
-                            {
-                                if (GUILayout.Button("Show settings", buttonStyle, GUILayout.Height(24f)))
-                                {
-                                    mainWindow.height = 0f;
-                                    showSettings = true;
-                                    if (activeToolbar == toolbarType.BLIZZY)
-                                        settings_BlizzyToolbar = true;
-                                    else
-                                        settings_BlizzyToolbar = false;
-                                    settings_CheckCrew = Settings.checkCrewAssignment;
-                                    settings_LockWindow = Settings.lockOnHover;
-                                }
-                            }
-#endif
+
                             if (GUILayout.Button(new GUIContent("Recheck vessel", "Use this if the automatic checking doesn't work for some reason"), buttonStyle, GUILayout.Height(24f)))
                                 checklistSystem.CheckVessel();
 

@@ -1,3 +1,15 @@
+0.5.10
+	Updated for 1.4.1
+	Added support for the ToolbarController
+	Added support for the clickthrough Blocker
+	Removed Toolbar option from settings page
+	Updated version info
+	Updated build scripts
+	Added to Jenkins
+
+0.5.9
+	Changed default to hide selection 
+
 0.5.1
 	Adoption by Linuxgurugamer
 	Renamed Data directory to PluginData

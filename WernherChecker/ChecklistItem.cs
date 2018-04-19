@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+using ClickThroughFix;
+
 namespace WernherChecker
 {
     public class ChecklistItem
@@ -83,7 +85,7 @@ namespace WernherChecker
                         checklistsInstance.paramsWindow.y = MainInstance.mainWindow.y + GUILayoutUtility.GetLastRect().y - 28;
                     checklistsInstance.paramsWindow.x = MainInstance.mainWindow.x - checklistsInstance.paramsWindow.width;
 
-                    //checklistsInstance.paramsWindow = GUILayout.Window(3, checklistsInstance.paramsWindow, checklistsInstance.DrawParamsWindow, "Edit Parameters          >", HighLogic.Skin.window);
+                    //checklistsInstance.paramsWindow = ClickThruBlocker.GUILayoutWindow(3, checklistsInstance.paramsWindow, checklistsInstance.DrawParamsWindow, "Edit Parameters          >", HighLogic.Skin.window);
                 }
             }
             if (!isManual)

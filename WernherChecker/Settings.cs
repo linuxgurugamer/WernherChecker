@@ -118,11 +118,7 @@ namespace WernherChecker
                 else
                     cfg.AddValue("checkCrewAssignment", this.checkCrewAssignment.ToString());
 #endif
-                //--------------------------------------------------------------------------
-                if (cfg.HasValue("toolbarType"))
-                    cfg.SetValue("toolbarType", WernherChecker.Instance.activeToolbar.ToString());
-                else
-                    cfg.AddValue("toolbarType", WernherChecker.Instance.activeToolbar.ToString());
+//--------------------------------------------------------------------------
                 //--------------------------------------------------------------------------
                 if (cfg.HasValue("minimized"))
                     cfg.SetValue("minimized", WernherChecker.Instance.minimized.ToString());

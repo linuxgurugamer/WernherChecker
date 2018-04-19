@@ -28,7 +28,7 @@
 	string s;
 
 
-	string versionfile =   @"D:\Users\jbb\github\WernherChecker\GameData\WernherChecker\WernherChecker.version";
+	string versionfile =   @"D:\Users\jbb\github\WernherChecker\WernherChecker.version";
 
 	if (!File.Exists(versionfile))
 	{

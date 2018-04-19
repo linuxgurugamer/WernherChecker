@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WernherChecker", "WernherChecker\WernherChecker.csproj", "{B354A988-A12E-4591-BECA-20EC1DF412BD}"
 EndProject
@@ -10,8 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFolder", "SolutionF
 		buildRelease.bat = buildRelease.bat
 		changelog.txt = changelog.txt
 		deploy.bat = deploy.bat
+		jenkins.txt = jenkins.txt
+		License.txt = License.txt
 		README.md = README.md
-		GameData\WernherChecker\WernherChecker.version = GameData\WernherChecker\WernherChecker.version
+		WernherChecker.version = WernherChecker.version
 	EndProjectSection
 EndProject
 Global
@@ -27,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3DBD892-F598-40AF-9300-0724DD4BEA29}
 	EndGlobalSection
 EndGlobal
