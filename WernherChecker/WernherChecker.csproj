@@ -76,8 +76,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>R:\KSP_1.5.1_dev\GameData\KIS\Plugins\KIS.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.0.31">
-      <HintPath>R:\KSP_1.5.1_dev\GameData\KIS\Plugins\KSPDev_Utils.0.31.dll</HintPath>
+    <Reference Include="KSPDev_Utils.0.37, Version=0.37.6763.34473, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>R:\KSP_1.5.1_dev\GameData\KIS\Plugins\KSPDev_Utils.0.37.dll</HintPath>
     </Reference>
     <Reference Include="RealChute, Version=1.4.6131.28216, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
