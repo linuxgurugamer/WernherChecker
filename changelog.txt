@@ -1,5 +1,6 @@
 0.5.10.11
 	Version bump for 1.5 rebuild
+	Added more criteria, thanks @Divstator
 
 0.5.10
 	Updated for 1.4.1
