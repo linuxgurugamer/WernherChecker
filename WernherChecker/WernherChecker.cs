@@ -24,7 +24,7 @@ namespace WernherChecker
         //Window variables
         public static float panelWidth = 100; //  = EditorPanels.Instance.partsEditor.panelTransform.rect.xMax;
         public Rect mainWindow; // = new Rect(panelWidth + 3, 120, 0, 0);
-        Rect settingsWindow = new Rect();
+        Rect settingsWindow;
         bool showAdvanced = false;
         bool showSettings = false;
         public bool minimized = false;
@@ -46,7 +46,7 @@ namespace WernherChecker
         string Version = "";
         bool HideWC_UI = false;
         internal static String _AssemblyName { get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; } }
-        int baseWindowID = UnityEngine.Random.Range(1000, 2000000) + _AssemblyName.GetHashCode();
+        int baseWindowID;
         UnityAction launchDelegate; // = new UnityAction(CrewCheck.OnButtonInput);
         UnityAction defaultLaunchDelegate; // = new UnityAction(EditorLogic.fetch.launchVessel);
         bool KCTInstalled = false;
@@ -54,13 +54,13 @@ namespace WernherChecker
         bool settings_BlizzyToolbar = false;
         bool settings_CheckCrew = true;
         bool settings_LockWindow = true;
-        public static string DataPath = KSPUtil.ApplicationRootPath + "GameData/WernherChecker/PluginData/";
-        public static Texture2D settingsTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/settings", false);
-        public static Texture2D tooltipBGTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/tooltip_BG", false);
+        public static string DataPath;
+        public static Texture2D settingsTexture;
+        public static Texture2D tooltipBGTexture;
         //IButton wcbutton;
         //ApplicationLauncherButton appButton;
         ToolbarControl toolbarControl;
-        public Vector2 mousePos = Input.mousePosition;
+        public Vector2 mousePos;
         public static List<Part> VesselParts
         {
             get
@@ -72,8 +72,8 @@ namespace WernherChecker
         }
 
         //Instances
-        public WCSettings Settings = new WCSettings();
-        public ChecklistSystem checklistSystem = new ChecklistSystem();
+        public WCSettings Settings ;
+        public ChecklistSystem checklistSystem;
         public static WernherChecker Instance;
 
         public enum toolbarType
@@ -83,21 +83,12 @@ namespace WernherChecker
         }
 
         // GUI Styles
-        public static GUIStyle windowStyle = new GUIStyle(HighLogic.Skin.window);
-        public static GUIStyle boxStyle = new GUIStyle(HighLogic.Skin.box);
-        public static GUIStyle buttonStyle = new GUIStyle(HighLogic.Skin.button);
-        public static GUIStyle toggleStyle = new GUIStyle(HighLogic.Skin.toggle);
-        public static GUIStyle labelStyle = new GUIStyle(HighLogic.Skin.label);
-        public static GUIStyle tooltipStyle = new GUIStyle(HighLogic.Skin.textArea)
-        {
-            padding = new RectOffset(4, 4, 4, 4),
-            border = new RectOffset(2, 2, 2, 2),
-            wordWrap = true,
-            alignment = TextAnchor.UpperLeft,
-            normal = { background = tooltipBGTexture },
-            richText = true,
-        };
-
+        public static GUIStyle windowStyle;
+        public static GUIStyle boxStyle;
+        public static GUIStyle buttonStyle;
+        public static GUIStyle toggleStyle;
+        public static GUIStyle labelStyle;
+        public static GUIStyle tooltipStyle;
 
         public static List<String> installedMods = new List<String>();
         static void buildModList()
@@ -122,12 +113,35 @@ namespace WernherChecker
         public void Awake()
         {
             Log.Info("WernherChecker.Awake");
+            Settings = new WCSettings();
+            checklistSystem = new ChecklistSystem();
+            settingsWindow = new Rect();
+            baseWindowID = UnityEngine.Random.Range(1000, 2000000) + _AssemblyName.GetHashCode();
+
+            DataPath = KSPUtil.ApplicationRootPath + "GameData/WernherChecker/PluginData/";
+            settingsTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/settings", false);
+            tooltipBGTexture = GameDatabase.Instance.GetTexture("WernherChecker/Images/tooltip_BG", false);
+
+            windowStyle = new GUIStyle(HighLogic.Skin.window);
+            boxStyle = new GUIStyle(HighLogic.Skin.box);
+            buttonStyle = new GUIStyle(HighLogic.Skin.button);
+            toggleStyle = new GUIStyle(HighLogic.Skin.toggle);
+            labelStyle = new GUIStyle(HighLogic.Skin.label);
+            tooltipStyle = new GUIStyle(HighLogic.Skin.textArea)
+            {
+                padding = new RectOffset(4, 4, 4, 4),
+                border = new RectOffset(2, 2, 2, 2),
+                wordWrap = true,
+                alignment = TextAnchor.UpperLeft,
+                normal = { background = tooltipBGTexture },
+                richText = true,
+            };
+
+            mousePos = Input.mousePosition;
+
             ReloadSettings();
             GameEvents.OnGameSettingsApplied.Add(ReloadSettings);
         }
-
-
-
 
         void ReloadSettings()
         {
@@ -140,23 +154,22 @@ namespace WernherChecker
             Log.Info("ReloadSettings 4");
         }
 
-
         public void Start()
         {
             Log.Warning("WernherChecker is loading..., scene: " + HighLogic.LoadedScene.ToString());
             Version = this.GetType().Assembly.GetName().Version.ToString();
             Log.Warning(string.Format("WernherChecker Version is {0}", Version));
             Instance = this;
-            
+
             if (Settings.Load())
             {
                 minimized = Settings.minimized;
                 mainWindow.x = Settings.windowX;
                 mainWindow.y = Settings.windowY;
             }
-            
+
             checklistSystem.LoadChecklists();
-            
+
             //if (AssemblyLoader.loadedAssemblies.Any(a => a.dllName == "KerbalConstructionTime"))
             if (hasMod("KerbalConstructionTime"))
                 KCTInstalled = true;
@@ -234,11 +247,11 @@ namespace WernherChecker
             HideWC_UI = true;
         }
 
-#region Toolbar stuff
+        #region Toolbar stuff
         void AddToolbarButton(toolbarType type, bool useStockIfProblem)
         {
 
-                    CreateAppButton();
+            CreateAppButton();
 
         }
         internal const string MODID = "WernerChecker_NS";
@@ -267,7 +280,7 @@ namespace WernherChecker
         }
 
 
-#endregion
+        #endregion
 
         void onEditorPanelChange(EditorScreen screen)
         {
