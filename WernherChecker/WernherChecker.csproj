@@ -84,20 +84,19 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>R:\KSP_1.9.1_Tetrix_Debug\GameData\KIS\Plugins\KIS.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.1, Version=2.1.7279.39857, Culture=neutral, processorArchitecture=AMD64">
+    <Reference Include="KSPDev_Utils.2.2, Version=2.2.7417.673, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>R:\KSP_1.8.0_dev\GameData\KIS\Plugins\KSPDev_Utils.2.1.dll</HintPath>
+      <HintPath>R:\KSP_1.9.1_dev\GameData\KIS\Plugins\KSPDev_Utils.2.2.dll</HintPath>
     </Reference>
-    <Reference Include="KSPDev_Utils.2.2">
-      <HintPath>R:\KSP_1.9.1_Tetrix\GameData\KIS\Plugins\KSPDev_Utils.2.2.dll</HintPath>
+    <Reference Include="RealChute, Version=1.4.6653.22804, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>R:\KSP_1.9.1_dev\GameData\RealChute\Plugins\RealChute.dll</HintPath>
     </Reference>
-    <Reference Include="SpaceTuxUtility">
-      <HintPath>R:\KSP_1.9.1_Tetrix_Debug\GameData\SpaceTuxLibrary\Plugins\SpaceTuxUtility.dll</HintPath>
+    <Reference Include="SpaceTuxUtility, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>R:\KSP_1.9.1_dev\GameData\SpaceTuxLibrary\Plugins\SpaceTuxUtility.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="RealChute">
-      <HintPath>R:\KSP_1.8.0_dev\GameData\RealChute\Plugins\RealChute.dll</HintPath>
-    </Reference>
     <Reference Include="ToolbarControl">
       <HintPath>$(KSPDIR)\GameData\001_ToolbarControl\Plugins\ToolbarControl.dll</HintPath>
     </Reference>
