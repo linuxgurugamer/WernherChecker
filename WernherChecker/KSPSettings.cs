@@ -30,51 +30,11 @@ namespace WernherChecker
         [GameParameters.CustomParameterUI("Always open when entering flight")]
         public bool alwaysOpenInFlight = false;
 
-        [GameParameters.CustomParameterUI("Prevent clicking-through")]
-        public bool lockOnHover = true;
-
         [GameParameters.CustomParameterUI("Check Crew Assignment")]
         public bool checkCrewAssignment = true;
 
-        [GameParameters.CustomParameterUI("Use Blizzy toolbar")]
-        public bool settings_BlizzyToolbar = false;
-
-
-#if false
-        public override void SetDifficultyPreset(GameParameters.Preset preset)
-        {
-            switch (preset)
-            {
-                case GameParameters.Preset.Easy:
-                    toolbarEnabled = true;
-                    toolbarPopupsEnabled = true;
-                    editorMenuPopupEnabled = true;
-                    hoverTimeout = 0.5f;
-                    break;
-
-                case GameParameters.Preset.Normal:
-                    toolbarEnabled = true;
-                    toolbarPopupsEnabled = true;
-                    editorMenuPopupEnabled = true;
-                    hoverTimeout = 0.5f;
-                    break;
-
-                case GameParameters.Preset.Moderate:
-                    toolbarEnabled = true;
-                    toolbarPopupsEnabled = true;
-                    editorMenuPopupEnabled = true;
-                    hoverTimeout = 0.5f;
-                    break;
-
-                case GameParameters.Preset.Hard:
-                    toolbarEnabled = true;
-                    toolbarPopupsEnabled = true;
-                    editorMenuPopupEnabled = true;
-                    hoverTimeout = 0.5f;
-                    break;
-            }
-        }
-#endif
+        [GameParameters.CustomParameterUI("Remember last checklist")]
+        public bool rememberLastChecklist = true;
 
         public override bool Enabled(MemberInfo member, GameParameters parameters)
         {

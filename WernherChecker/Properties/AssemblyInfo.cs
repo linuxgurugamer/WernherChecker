@@ -38,3 +38,4 @@ using System.Runtime.InteropServices;
 
 [assembly: KSPAssemblyDependency("ClickThroughBlocker", 1, 0)]
 [assembly: KSPAssemblyDependency("ToolbarController", 1, 0)]
+[assembly: KSPAssemblyDependency("ButtonManager", 1, 0)]

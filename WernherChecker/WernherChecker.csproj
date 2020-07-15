@@ -54,7 +54,6 @@
     <Compile Include="PartSelection.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="ToolbarRegistration.cs" />
-    <Compile Include="ToolbarWrapper.cs" />
     <Compile Include="WernherChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -73,18 +72,29 @@
     <Reference Include="$(KSPDIR)\KSP_x64_Data\Managed\UnityEngine*.dll">
       <Private>False</Private>
     </Reference>
-    <Reference Include="ClickThroughBlocker, Version=0.1.9.4, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ButtonManager, Version=0.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>R:\KSP_1.8.0_dev\GameData\000_ClickThroughBlocker\Plugins\ClickThroughBlocker.dll</HintPath>
+      <HintPath>R:\KSP_1.9.1_dev\GameData\SpaceTuxLibrary\Plugins\ButtonManager.dll</HintPath>
+    </Reference>
+    <Reference Include="ClickThroughBlocker, Version=0.1.9.3, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>R:\KSP_1.9.1_dev\GameData\000_ClickThroughBlocker\Plugins\ClickThroughBlocker.dll</HintPath>
+    </Reference>
+    <Reference Include="KIS, Version=1.25.7420.31998, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>R:\KSP_1.9.1_Tetrix_Debug\GameData\KIS\Plugins\KIS.dll</HintPath>
     </Reference>
     <Reference Include="KSPDev_Utils.2.1, Version=2.1.7279.39857, Culture=neutral, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>R:\KSP_1.8.0_dev\GameData\KIS\Plugins\KSPDev_Utils.2.1.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="KIS">
-      <HintPath>R:\KSP_1.8.0_dev\GameData\KIS\Plugins\KIS.dll</HintPath>
+    <Reference Include="KSPDev_Utils.2.2">
+      <HintPath>R:\KSP_1.9.1_Tetrix\GameData\KIS\Plugins\KSPDev_Utils.2.2.dll</HintPath>
     </Reference>
+    <Reference Include="SpaceTuxUtility">
+      <HintPath>R:\KSP_1.9.1_Tetrix_Debug\GameData\SpaceTuxLibrary\Plugins\SpaceTuxUtility.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
     <Reference Include="RealChute">
       <HintPath>R:\KSP_1.8.0_dev\GameData\RealChute\Plugins\RealChute.dll</HintPath>
     </Reference>

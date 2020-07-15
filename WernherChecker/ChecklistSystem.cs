@@ -47,7 +47,7 @@ namespace WernherChecker
                     availableChecklists.Clear();
                     foreach (ConfigNode checklistNode in WernherChecker.Instance.Settings.cfg.GetNodes("CHECKLIST"))
                     {
-                        Log.Info("[WernherChecker]: Parsing checklist - " + checklistNode.GetValue("name"));
+                        Log.Info("Parsing checklist - " + checklistNode.GetValue("name"));
                         Checklist parsedChecklist = new Checklist();
                         parsedChecklist.items = new List<ChecklistItem>();
                         parsedChecklist.name = checklistNode.GetValue("name");
@@ -98,7 +98,7 @@ namespace WernherChecker
 
             catch
             {
-                Log.Warning("[WernherChecker]: Error loading checklist. Please, check your cfg file.");
+                Log.Warning("Error loading checklist. Please, check your cfg file.");
                 return false;
             }
         }
@@ -117,7 +117,7 @@ namespace WernherChecker
             if (HighLogic.LoadedScene != GameScenes.EDITOR)
                 return;
 
-            if (MainInstance == null || !MainInstance.checklistSelected)
+            if (MainInstance == null || !WernherChecker.checklistSelected)
                 return;
 
             if (EditorLogic.RootPart == null || (MainInstance.partSelection == null && MainInstance.checkSelected))
@@ -133,7 +133,6 @@ namespace WernherChecker
                 partsToCheck = ship.Parts;
 
             for (int j = 0; j < activeChecklist.items.Count; j++)
-            //foreach (ChecklistItem item in activeChecklist.items)
             {
                 ChecklistItem item = activeChecklist.items[j];
                 if (item.isManual)
@@ -141,7 +140,6 @@ namespace WernherChecker
 
                 item.state = true;
                 for (int i = 0; i < item.criteria.Count; i++)
-                //foreach(Criterion crton in item.criteria)
                 {
                     Criterion crton = item.criteria[i];
                     switch (crton.type)
@@ -180,7 +178,7 @@ namespace WernherChecker
         public void CheckActiveVessel(Vessel ship)
         {
             Log.Info("CheckActiveVessel");
-            if (!MainInstance.checklistSelected)
+            if (!WernherChecker.checklistSelected)
                 return;
 
             if (MainInstance.checkSelected && MainInstance.partSelection != null)
@@ -189,7 +187,6 @@ namespace WernherChecker
                 partsToCheck = ship.Parts;
 
             for (int j = 0; j < activeChecklist.items.Count; j++)
-            //foreach (ChecklistItem item in activeChecklist.items)
             {
                 ChecklistItem item = activeChecklist.items[j];
                 if (item.isManual)
@@ -197,7 +194,6 @@ namespace WernherChecker
 
                 item.state = true;
                 for (int i = 0; i < item.criteria.Count; i++)
-                //foreach(Criterion crton in item.criteria)
                 {
                     Criterion crton = item.criteria[i];
                     switch (crton.type)
@@ -236,6 +232,8 @@ namespace WernherChecker
 
         bool CheckForKISModules(Criterion crton)
         {
+            Log.Info("CheckForKISModules");
+
             int quantity = 0;
             foreach (string module in crton.modules)
             {
@@ -307,7 +305,11 @@ namespace WernherChecker
         {
             Log.Info("CheckForModules");
             if (crton.reqModName == "KIS")
+            {
+                if (!InstallChecker.KISisOK)
+                    return false;
                 return CheckForKISModules(crton);
+            }
             int quantity = 0;
             foreach (string module in crton.modules)
             {
@@ -395,7 +397,7 @@ namespace WernherChecker
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("[WernherChecker]: Error checking crew:\n" + ex + "\n\n<b><color=lime>Please note, that this can sometimes happen after entering the editor and attaching the part for the first time.</color> <color=#ff4444ff>If this is not the case, please, report it.</color></b>");
+                    Log.Warning("Error checking crew:\n" + ex + "\n\n<b><color=lime>Please note, that this can sometimes happen after entering the editor and attaching the part for the first time.</color> <color=#ff4444ff>If this is not the case, please, report it.</color></b>");
                     return false;
                 }
             }

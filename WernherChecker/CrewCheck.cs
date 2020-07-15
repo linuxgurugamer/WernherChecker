@@ -54,14 +54,16 @@ namespace WernherChecker
 
         public static void Complete()
         {
-            Log.Info("[WernherChecker]: Crew is OK, launching vessel.");
+            Log.Info("Crew is OK, launching vessel.");
             EditorLogic.fetch.Unlock("WernherChecker_crewCheck");
-            EditorLogic.fetch.launchVessel();
+            //EditorLogic.fetch.launchVessel();
+            ButtonManager.BtnManager.InvokeNextDelegate(WernherChecker.btnId, "WernerChecker");
+
         }
 
         public static void Abort()
         {
-            Log.Info("[WernherChecker]: Showing crew panel.");
+            Log.Info("Showing crew panel.");
             EditorLogic.fetch.Unlock("WernherChecker_crewCheck");
             EditorLogic.fetch.SelectPanelCrew();
         }

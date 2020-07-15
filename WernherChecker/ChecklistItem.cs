@@ -16,11 +16,11 @@ namespace WernherChecker
         }
         public Checklist activeChecklist
         {
-            get { return MainInstance.checklistSystem.ActiveChecklist; }
+            get { return WernherChecker.checklistSystem.ActiveChecklist; }
         }
         public ChecklistSystem checklistsInstance
         {
-            get { return MainInstance.checklistSystem; }
+            get { return WernherChecker.checklistSystem; }
         }
         //GUIStyle
         public GUIStyle labelStyle = new GUIStyle(HighLogic.Skin.label);

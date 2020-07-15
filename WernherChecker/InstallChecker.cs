@@ -8,11 +8,14 @@
  * 
  * This file has been modified extensively and is released under the same license.
  */
+using KIS;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+
+using SpaceTuxUtility;
 
 namespace WernherChecker
 {
@@ -35,11 +38,16 @@ namespace WernherChecker
             }
             Debug.Log("[" + title + "] Version " + v);
         }
+
+
     }
 
     [KSPAddon(KSPAddon.Startup.MainMenu, true)]
     internal class InstallChecker : MonoBehaviour
     {
+        const string EXPECTED_MIN_KIS = "1.25.0.0";
+        public static bool KISisOK = false;
+
         private const string MODNAME = "Wernher Checker";
         private const string FOLDERNAME = "WernherChecker";
         private const string EXPECTEDPATH = FOLDERNAME + "/Plugins";
@@ -77,6 +85,15 @@ namespace WernherChecker
             //}
 
             CleanupOldVersions();
+            GetKISInfo();
+        }
+        void GetKISInfo()
+        {
+            //var asm = VerifyAsmVersion.VerifyAssemblyVersion("KIS", "0.0.0.0", out System.Version foundVersion);
+            //Log.Info("Major: " + foundVersion.Major + ", Minor: " + foundVersion.Minor + ", Build: " + foundVersion.Build + ", Revision: " + foundVersion.Revision);
+
+            KISisOK = VerifyAsmVersion.CheckVersion("KIS", EXPECTED_MIN_KIS);
+            Log.Info("KISisOK: " + KISisOK);
         }
 
         /*

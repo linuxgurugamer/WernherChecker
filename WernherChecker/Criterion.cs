@@ -25,7 +25,7 @@ namespace WernherChecker
         }
         public Checklist activeChecklist
         {
-            get { return MainInstance.checklistSystem.ActiveChecklist; }
+            get { return WernherChecker.checklistSystem.ActiveChecklist; }
         }
 
         public CriterionType type;
@@ -47,26 +47,6 @@ namespace WernherChecker
 
         public string reqModName;
         public bool valid;
-#if false
-        public static List<String> installedMods = new List<String>();
-        public void buildModList()
-        {
-            Log.Info("buildModList");
-            //https://github.com/Xaiier/Kreeper/blob/master/Kreeper/Kreeper.cs#L92-L94 <- Thanks Xaiier!
-            foreach (AssemblyLoader.LoadedAssembly a in AssemblyLoader.loadedAssemblies)
-            {
-                string name = a.name;
-                Log.Info(string.Format("Loading assembly: {0}", name));
-                installedMods.Add(name);
-            }
-        }
-        public bool hasMod(string modIdent)
-        {
-            if (installedMods.Count == 0)
-                buildModList();
-            return installedMods.Contains(modIdent);
-        }
-#endif
 
         public Criterion(ConfigNode node)
         {

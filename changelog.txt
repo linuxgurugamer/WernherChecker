@@ -1,5 +1,16 @@
 ChangeLog
 
+0.5.12
+	Removed all old Blizzy code
+	Removed old dead code
+	Fixed saving of window position
+	Fixed open/close of window when entering scene
+	Added option (stock settings) to remember last checklist
+	Added support for the ButtonManager
+	Added SpaceTuxLibrary as a dependency
+	Cleaned up log lines to avoid double printing of the mod name
+	Added check for minimum KIS version
+
 0.5.11
 	Added InstallChecker
 	Updated AssemblyVersion.tt
