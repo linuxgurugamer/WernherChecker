@@ -18,7 +18,7 @@ using ToolbarControl_NS;
 namespace WernherChecker
 {
 
-    [KSPAddon(KSPAddon.Startup.FlightAndEditor, false)]
+    [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     public class WernherChecker : MonoBehaviour
     {
         //Window variables

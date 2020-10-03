@@ -1,5 +1,8 @@
 ChangeLog
 
+0.5.13
+	Disabled checklist in flight (was causing issues with comets)
+
 0.5.12
 	Removed all old Blizzy code
 	Removed old dead code
